@@ -1,0 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --font-outfit: 'Outfit', sans-serif;
+
+  /* HSL Color Palette - Obsidian Neon Dark Theme */
+  --bg-main: hsl(230, 25%, 7%);
+  --bg-card: hsla(230, 20%, 12%, 0.7);
+  --bg-glass: hsla(230, 20%, 15%, 0.4);
+  --border-glass: hsla(230, 15%, 25%, 0.4);
+  --border-focus: hsla(260, 80%, 65%, 0.8);
+
+  --text-primary: hsl(0, 0%, 96%);
+  --text-secondary: hsl(230, 12%, 75%);
+  --text-muted: hsl(230, 10%, 55%);
+
+  /* Neon Glow Accents */
+  --accent-primary: hsl(260, 85%, 65%);     /* Purple Glow */
+  --accent-secondary: hsl(190, 90%, 50%);   /* Cyan Glow */
+  --accent-success: hsl(145, 80%, 45%);     /* Emerald Green */
+  --accent-warning: hsl(35, 90%, 55%);      /* Amber Gold */
+  --accent-error: hsl(350, 85%, 55%);       /* Crimson Red */
+
+  --shadow-neon: 0 0 15px hsla(260, 85%, 65%, 0.25);
+  --shadow-cyan: 0 0 15px hsla(190, 90%, 50%, 0.25);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-outfit);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 10% 20%, hsla(260, 85%, 65%, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, hsla(190, 90%, 50%, 0.06) 0%, transparent 45%);
+  background-attachment: fixed;
+}
+
+/* Glassmorphism utility card */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: var(--transition-smooth);
+}
+
+.glass-panel:hover {
+  border-color: hsla(230, 15%, 35%, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Interactive elements */
+.neon-button {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, hsl(280, 80%, 60%) 100%);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-neon);
+  transition: var(--transition-smooth);
+}
+
+.neon-button:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 20px hsla(260, 85%, 65%, 0.45);
+  transform: translateY(-1px);
+}
+
+.secondary-button {
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.secondary-button:hover {
+  background: hsla(230, 20%, 25%, 0.5);
+  border-color: var(--text-muted);
+}
+
+/* Typography elements */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--text-primary) 30%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+/* Form controls */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-family: var(--font-outfit);
+  transition: var(--transition-smooth);
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 10px hsla(260, 80%, 65%, 0.2);
+}
+
+/* Responsive grid layout */
+.layout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}

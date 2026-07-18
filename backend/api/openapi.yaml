@@ -1,0 +1,836 @@
+openapi: "3.0.3"
+info:
+  title: Tourtect API
+  version: "1.0.0"
+  description: |
+    Tourtect backend API — community-powered travel safety and price transparency platform.
+    All responses use snake_case JSON. Times are ISO 8601 UTC.
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+
+paths:
+  /health/live:
+    get:
+      operationId: healthLive
+      tags: [health]
+      summary: Liveness probe
+      description: Returns 200 if the process is running.
+      responses:
+        "200":
+          description: Process is alive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /health/ready:
+    get:
+      operationId: healthReady
+      tags: [health]
+      summary: Readiness probe
+      description: Returns 200 only when mandatory dependencies (PostgreSQL) are usable.
+      responses:
+        "200":
+          description: All mandatory dependencies are ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+        "503":
+          description: One or more mandatory dependencies are unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /v1/places:
+    get:
+      operationId: listPlaces
+      tags: [places]
+      summary: List places
+      description: Returns a paginated list of places with optional text, region, and category filters.
+      parameters:
+        - $ref: "#/components/parameters/CursorParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/LocaleParam"
+        - $ref: "#/components/parameters/RequestIdParam"
+        - name: q
+          in: query
+          description: Free-text search query
+          schema:
+            type: string
+        - name: region_id
+          in: query
+          description: Filter by region identifier
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter by place category
+          schema:
+            type: string
+        - name: lat
+          in: query
+          description: Latitude for distance search
+          schema:
+            type: number
+            format: double
+        - name: lon
+          in: query
+          description: Longitude for distance search
+          schema:
+            type: number
+            format: double
+        - name: radius_m
+          in: query
+          description: Search radius in meters (requires lat/lon)
+          schema:
+            type: integer
+            default: 5000
+      responses:
+        "200":
+          description: Paginated list of place summaries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaceListResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /v1/places/{placeId}:
+    get:
+      operationId: getPlace
+      tags: [places]
+      summary: Get place details
+      parameters:
+        - $ref: "#/components/parameters/PlaceIdParam"
+        - $ref: "#/components/parameters/LocaleParam"
+        - $ref: "#/components/parameters/RequestIdParam"
+      responses:
+        "200":
+          description: Place details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaceDetail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /v1/posts:
+    get:
+      operationId: listPosts
+      tags: [posts]
+      summary: List published posts
+      parameters:
+        - $ref: "#/components/parameters/CursorParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/LocaleParam"
+        - $ref: "#/components/parameters/RequestIdParam"
+        - name: place_id
+          in: query
+          description: Filter by linked place
+          schema:
+            type: string
+            format: uuid
+        - name: post_type
+          in: query
+          description: Filter by post type
+          schema:
+            $ref: "#/components/schemas/PostType"
+      responses:
+        "200":
+          description: Paginated list of posts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostListResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /v1/posts/drafts:
+    post:
+      operationId: createDraft
+      tags: [posts]
+      summary: Create a draft post
+      parameters:
+        - $ref: "#/components/parameters/RequestIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDraftRequest"
+      responses:
+        "201":
+          description: Draft created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /v1/posts/{postId}/publish:
+    post:
+      operationId: publishPost
+      tags: [posts]
+      summary: Publish a draft post
+      parameters:
+        - $ref: "#/components/parameters/PostIdParam"
+        - $ref: "#/components/parameters/RequestIdParam"
+      responses:
+        "200":
+          description: Post published
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Post is not in draft state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /v1/price-checks:
+    post:
+      operationId: createPriceCheck
+      tags: [pricing]
+      summary: Submit a price check
+      parameters:
+        - $ref: "#/components/parameters/RequestIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PriceCheckRequest"
+      responses:
+        "200":
+          description: Price insight result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceInsight"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /v1/safety/assessments:
+    post:
+      operationId: createSafetyAssessment
+      tags: [safety]
+      summary: Submit a safety assessment request
+      parameters:
+        - $ref: "#/components/parameters/RequestIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SafetyAssessmentRequest"
+      responses:
+        "200":
+          description: Safety assessment result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SafetyAssessment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+components:
+  parameters:
+    CursorParam:
+      name: cursor
+      in: query
+      description: Opaque cursor for pagination
+      schema:
+        type: string
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Maximum number of items to return
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    LocaleParam:
+      name: locale
+      in: query
+      description: Preferred locale for responses
+      schema:
+        $ref: "#/components/schemas/Locale"
+
+    RequestIdParam:
+      name: X-Request-ID
+      in: header
+      description: Client-provided request identifier for tracing
+      schema:
+        type: string
+        format: uuid
+
+    PlaceIdParam:
+      name: placeId
+      in: path
+      required: true
+      description: Place identifier
+      schema:
+        type: string
+        format: uuid
+
+    PostIdParam:
+      name: postId
+      in: path
+      required: true
+      description: Post identifier
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+
+    UnprocessableEntity:
+      description: Request body validation failed
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+
+  schemas:
+    Locale:
+      type: string
+      enum: [vi-VN, ko-KR, zh-Hans, en, ru-RU]
+
+    PostType:
+      type: string
+      enum:
+        - discussion
+        - question
+        - review
+        - price_report
+        - scam_report
+        - tip
+        - official_alert
+        - external_link
+
+    ModerationStatus:
+      type: string
+      enum: [draft, pending, published, limited, removed, appealed]
+
+    EvidenceLevel:
+      type: string
+      enum: [none, metadata, verified_receipt, verified_source]
+
+    CommercialDisclosure:
+      type: string
+      enum: [none, invited, gifted, affiliate, employee, sponsored]
+
+    AlertLevel:
+      type: string
+      enum: [typical, elevated, high_risk, insufficient_data]
+
+    Vertical:
+      type: string
+      enum: [taxi, exchange, food, tour, street_retail]
+
+    ServiceSegment:
+      type: string
+      enum: [budget, standard, premium, luxury, regulated]
+
+    VenueType:
+      type: string
+      enum:
+        - fixed_shop
+        - casual_eatery
+        - street_stall
+        - mobile_vendor
+        - market_stall
+        - attraction_concession
+        - transport_vendor
+        - peer_to_peer
+
+    TransactionContext:
+      type: string
+      enum:
+        - posted_price
+        - verbal_quote
+        - negotiated
+        - metered
+        - platform_booked
+        - unsolicited_goods_service
+        - donation_solicitation
+
+    SafetyUrgency:
+      type: string
+      enum: [critical, urgent, non_emergency, information]
+
+    GeoFallbackLevel:
+      type: string
+      enum: [exact_zone, commune, province, province_cluster, national_vertical]
+
+    ProblemDetail:
+      type: object
+      required: [type, status, title]
+      properties:
+        type:
+          type: string
+          description: URI reference identifying the problem type
+        status:
+          type: integer
+          description: HTTP status code
+        title:
+          type: string
+          description: Short human-readable summary
+        detail:
+          type: string
+          description: Human-readable explanation
+        instance:
+          type: string
+          description: URI reference for this specific occurrence
+        trace_id:
+          type: string
+          description: Request trace identifier
+
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, unavailable]
+        checks:
+          type: object
+          additionalProperties:
+            type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    CursorInfo:
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          description: Cursor for the next page, absent if no more results
+        has_more:
+          type: boolean
+
+    Coordinates:
+      type: object
+      required: [latitude, longitude]
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+
+    PlaceSummary:
+      type: object
+      required: [place_id, name, category, coordinates, created_at]
+      properties:
+        place_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          type: string
+        region_id:
+          type: string
+        coordinates:
+          $ref: "#/components/schemas/Coordinates"
+        address:
+          type: string
+        aliases:
+          type: array
+          items:
+            type: string
+        post_count:
+          type: integer
+        average_rating:
+          type: number
+          format: double
+        freshness:
+          type: string
+          format: date-time
+          description: Last content update time
+        created_at:
+          type: string
+          format: date-time
+        distance_m:
+          type: number
+          format: double
+          description: Distance from search point in meters, present only for geo queries
+
+    PlaceDetail:
+      type: object
+      required: [place_id, name, category, coordinates, created_at]
+      properties:
+        place_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          type: string
+        region_id:
+          type: string
+        coordinates:
+          $ref: "#/components/schemas/Coordinates"
+        address:
+          type: string
+        description:
+          type: string
+        aliases:
+          type: array
+          items:
+            type: string
+        phone:
+          type: string
+        website:
+          type: string
+        opening_hours:
+          type: string
+        post_count:
+          type: integer
+        review_count:
+          type: integer
+        average_rating:
+          type: number
+          format: double
+        freshness:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    PlaceListResponse:
+      type: object
+      required: [items, pagination]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlaceSummary"
+        pagination:
+          $ref: "#/components/schemas/CursorInfo"
+
+    Post:
+      type: object
+      required:
+        - post_id
+        - author_id
+        - post_type
+        - original_locale
+        - title
+        - body
+        - moderation_status
+        - evidence_level
+        - commercial_disclosure
+        - created_at
+        - updated_at
+      properties:
+        post_id:
+          type: string
+          format: uuid
+        author_id:
+          type: string
+          format: uuid
+        post_type:
+          $ref: "#/components/schemas/PostType"
+        original_locale:
+          $ref: "#/components/schemas/Locale"
+        title:
+          type: string
+        body:
+          type: string
+        place_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        evidence_level:
+          $ref: "#/components/schemas/EvidenceLevel"
+        commercial_disclosure:
+          $ref: "#/components/schemas/CommercialDisclosure"
+        moderation_status:
+          $ref: "#/components/schemas/ModerationStatus"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateDraftRequest:
+      type: object
+      required: [post_type, original_locale, title, body]
+      properties:
+        post_type:
+          $ref: "#/components/schemas/PostType"
+        original_locale:
+          $ref: "#/components/schemas/Locale"
+        title:
+          type: string
+          minLength: 1
+          maxLength: 500
+        body:
+          type: string
+          minLength: 1
+          maxLength: 50000
+        place_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 10
+
+    PostListResponse:
+      type: object
+      required: [items, pagination]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Post"
+        pagination:
+          $ref: "#/components/schemas/CursorInfo"
+
+    Money:
+      type: object
+      required: [amount_minor, currency, exponent]
+      properties:
+        amount_minor:
+          type: string
+          description: Amount in minor units as string to avoid floating-point issues
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+        exponent:
+          type: integer
+
+    PriceCheckRequest:
+      type: object
+      required: [vertical, raw_item, money, unit, region_id, service_segment, venue_type, transaction_context, observed_at]
+      properties:
+        vertical:
+          $ref: "#/components/schemas/Vertical"
+        canonical_item_id:
+          type: string
+        raw_item:
+          type: string
+        money:
+          $ref: "#/components/schemas/Money"
+        unit:
+          type: string
+        region_id:
+          type: string
+        pricing_zone_id:
+          type: string
+        service_segment:
+          $ref: "#/components/schemas/ServiceSegment"
+        venue_type:
+          $ref: "#/components/schemas/VenueType"
+        transaction_context:
+          $ref: "#/components/schemas/TransactionContext"
+        observed_at:
+          type: string
+          format: date-time
+        extraction_confidence:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 1
+        user_confirmed:
+          type: boolean
+          default: false
+
+    PriceInsight:
+      type: object
+      required: [alert_level, observed, confidence, freshness, dataset_version, trace_id, reasons]
+      properties:
+        alert_level:
+          $ref: "#/components/schemas/AlertLevel"
+        observed:
+          $ref: "#/components/schemas/Money"
+        reference:
+          $ref: "#/components/schemas/PriceReference"
+        deviation_ratio:
+          type: number
+          format: double
+        confidence:
+          type: number
+          format: double
+        comparison_scope:
+          type: string
+        freshness:
+          type: string
+          format: date-time
+        sample_size:
+          type: integer
+        snapshot_version:
+          type: string
+        reasons:
+          type: array
+          items:
+            type: string
+        possible_benign_explanations:
+          type: array
+          items:
+            type: string
+        dataset_version:
+          type: string
+        trace_id:
+          type: string
+
+    PriceReference:
+      type: object
+      properties:
+        p10_minor:
+          type: string
+        p50_minor:
+          type: string
+        p90_minor:
+          type: string
+        currency:
+          type: string
+        exponent:
+          type: integer
+        unit:
+          type: string
+        region_id:
+          type: string
+        pricing_zone_id:
+          type: string
+        service_segment:
+          $ref: "#/components/schemas/ServiceSegment"
+        venue_type:
+          $ref: "#/components/schemas/VenueType"
+        geo_fallback_level:
+          $ref: "#/components/schemas/GeoFallbackLevel"
+        effective_sample_size:
+          type: integer
+        independent_source_count:
+          type: integer
+
+    SafetyAssessmentRequest:
+      type: object
+      required: [observed_facts]
+      properties:
+        observed_facts:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        user_reported_state:
+          type: string
+        threat_indicators:
+          type: array
+          items:
+            type: string
+        injury_indicators:
+          type: array
+          items:
+            type: string
+        confinement_indicators:
+          type: array
+          items:
+            type: string
+        coercion_indicators:
+          type: array
+          items:
+            type: string
+        ability_to_leave:
+          type: boolean
+        user_confirmed_facts:
+          type: array
+          items:
+            type: string
+
+    SafetyAssessment:
+      type: object
+      required: [urgency, safe_actions, safety_directory_version, confidence, trace_id]
+      properties:
+        urgency:
+          $ref: "#/components/schemas/SafetyUrgency"
+        safe_actions:
+          type: array
+          items:
+            type: string
+        approved_action_codes:
+          type: array
+          items:
+            type: string
+        explanation_codes:
+          type: array
+          items:
+            type: string
+        silent_mode_recommended:
+          type: boolean
+        surface_emergency_options:
+          type: boolean
+        emergency_service_ids:
+          type: array
+          items:
+            type: string
+        safety_directory_version:
+          type: string
+        confidence:
+          type: number
+          format: double
+        trace_id:
+          type: string

@@ -6,3 +6,12 @@
 .local/
 compose.override.yaml
 
+# Go build outputs
+backend/bin/
+
+# Android build outputs & IDE settings
+android/.gradle/
+android/local.properties
+android/**/build/
+.idea/
+*.iml
