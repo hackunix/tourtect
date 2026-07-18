@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+
+# Local container data and overrides
+.local/
+compose.override.yaml
+
