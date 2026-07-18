@@ -2,8 +2,10 @@ package content
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,6 +35,8 @@ type Post struct {
 	OriginalLocale       string
 	Title                string
 	Body                 string
+	RegionID             *string
+	StructuredData       json.RawMessage
 	EvidenceLevel        string
 	CommercialDisclosure string
 	ModerationStatus     string
@@ -107,7 +111,7 @@ func (r *Repository) Get(ctx context.Context, id uuid.UUID) (*Post, error) {
 	}, nil
 }
 
-func (r *Repository) CreateDraft(ctx context.Context, authorID uuid.UUID, postType, locale, title, body string, placeIDs []uuid.UUID) (*Post, error) {
+func (r *Repository) CreateDraft(ctx context.Context, authorID uuid.UUID, postType, locale, title, body string, regionID *string, structuredData []byte, placeIDs []uuid.UUID) (*Post, error) {
 	// Execute in a transaction to insert post and create links
 	tx, err := r.pool.Begin(ctx)
 	if err != nil {
@@ -117,13 +121,10 @@ func (r *Repository) CreateDraft(ctx context.Context, authorID uuid.UUID, postTy
 
 	qtx := r.queries.WithTx(tx)
 
-	p, err := qtx.CreateDraftPost(ctx, database.CreateDraftPostParams{
-		AuthorID:       authorID,
-		PostType:       postType,
-		OriginalLocale: locale,
-		Title:          title,
-		Body:           body,
-	})
+	var p database.Post
+	err = tx.QueryRow(ctx, `INSERT INTO posts(author_id,post_type,original_locale,title,body,region_id,structured_data,moderation_status)
+		VALUES($1,$2,$3,$4,$5,$6,$7,'draft') RETURNING post_id,author_id,post_type,original_locale,title,body,evidence_level,commercial_disclosure,moderation_status,created_at,updated_at,region_id,structured_data`,
+		authorID, postType, locale, title, body, regionID, structuredData).Scan(&p.PostID, &p.AuthorID, &p.PostType, &p.OriginalLocale, &p.Title, &p.Body, &p.EvidenceLevel, &p.CommercialDisclosure, &p.ModerationStatus, &p.CreatedAt, &p.UpdatedAt, &p.RegionID, &p.StructuredData)
 	if err != nil {
 		return nil, fmt.Errorf("create draft post db error: %w", err)
 	}
@@ -138,6 +139,10 @@ func (r *Repository) CreateDraft(ctx context.Context, authorID uuid.UUID, postTy
 		}
 	}
 
+	if err := insertStructuredDraft(ctx, tx, p.PostID, postType, placeIDs, structuredData); err != nil {
+		return nil, err
+	}
+
 	if err := tx.Commit(ctx); err != nil {
 		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
@@ -149,6 +154,8 @@ func (r *Repository) CreateDraft(ctx context.Context, authorID uuid.UUID, postTy
 		OriginalLocale:       p.OriginalLocale,
 		Title:                p.Title,
 		Body:                 p.Body,
+		RegionID:             regionID,
+		StructuredData:       append(json.RawMessage(nil), structuredData...),
 		EvidenceLevel:        p.EvidenceLevel,
 		CommercialDisclosure: p.CommercialDisclosure,
 		ModerationStatus:     p.ModerationStatus,
@@ -158,8 +165,80 @@ func (r *Repository) CreateDraft(ctx context.Context, authorID uuid.UUID, postTy
 	}, nil
 }
 
-func (r *Repository) Publish(ctx context.Context, id uuid.UUID) (*Post, error) {
-	_, err := r.queries.PublishPost(ctx, id)
+func insertStructuredDraft(ctx context.Context, tx pgx.Tx, postID uuid.UUID, postType string, placeIDs []uuid.UUID, raw []byte) error {
+	if postType != "review" && postType != "price_report" && postType != "scam_report" {
+		return nil
+	}
+	var data map[string]any
+	if err := json.Unmarshal(raw, &data); err != nil {
+		return errors.New("structured_data must be valid JSON")
+	}
+	firstPlace := uuid.Nil
+	if len(placeIDs) > 0 {
+		firstPlace = placeIDs[0]
+	}
+	switch postType {
+	case "review":
+		rating, ok := numberValue(data["overall_rating"])
+		if firstPlace == uuid.Nil || !ok || rating < 1 || rating > 5 {
+			return errors.New("review requires a place and overall_rating from 1 to 5")
+		}
+		_, err := tx.Exec(ctx, `INSERT INTO reviews(post_id,place_id,visited_at,overall_rating,price_transparency_rating,service_rating,safety_rating,value_rating)
+			VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, postID, firstPlace, nullableStringValue(data["visited_at"]), int(rating), nullableInt(data["price_transparency_rating"]), nullableInt(data["service_rating"]), nullableInt(data["safety_rating"]), nullableInt(data["value_rating"]))
+		if err != nil {
+			return fmt.Errorf("create review data: %w", err)
+		}
+	case "price_report":
+		amount, ok := numberValue(data["amount_minor"])
+		item, currency, unit := stringValue(data["item"]), strings.ToUpper(stringValue(data["currency"])), stringValue(data["unit"])
+		observed, err := time.Parse(time.RFC3339, stringValue(data["observed_at"]))
+		if !ok || amount < 0 || item == "" || len(currency) != 3 || unit == "" || err != nil {
+			return errors.New("price report requires item, non-negative amount_minor, 3-letter currency, unit, and observed_at")
+		}
+		_, err = tx.Exec(ctx, `INSERT INTO community_price_reports(post_id,item,amount_minor,currency,unit,observed_at) VALUES($1,$2,$3,$4,$5,$6)`, postID, item, int64(amount), currency, unit, observed)
+		if err != nil {
+			return fmt.Errorf("create price report data: %w", err)
+		}
+	case "scam_report":
+		state := stringValue(data["current_safety_state"])
+		observed, err := time.Parse(time.RFC3339, stringValue(data["observed_at"]))
+		if state == "" || err != nil {
+			return errors.New("scam report requires current_safety_state and observed_at")
+		}
+		_, err = tx.Exec(ctx, `INSERT INTO community_scam_reports(post_id,observed_at,current_safety_state) VALUES($1,$2,$3)`, postID, observed, state)
+		if err != nil {
+			return fmt.Errorf("create scam report data: %w", err)
+		}
+	}
+	return nil
+}
+
+func stringValue(value any) string {
+	if text, ok := value.(string); ok {
+		return strings.TrimSpace(text)
+	}
+	return ""
+}
+func nullableStringValue(value any) any {
+	if text := stringValue(value); text != "" {
+		return text
+	}
+	return nil
+}
+func numberValue(value any) (float64, bool) { number, ok := value.(float64); return number, ok }
+func nullableInt(value any) any {
+	if number, ok := numberValue(value); ok {
+		return int(number)
+	}
+	return nil
+}
+
+func (r *Repository) Publish(ctx context.Context, id, authorID uuid.UUID) (*Post, error) {
+	var status string
+	err := r.pool.QueryRow(ctx, `UPDATE posts
+		SET moderation_status = CASE WHEN post_type = 'scam_report' THEN 'pending' ELSE 'published' END, updated_at = now()
+		WHERE post_id = $1 AND author_id = $2 AND moderation_status = 'draft'
+		RETURNING moderation_status`, id, authorID).Scan(&status)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, errors.New("post not found or not in draft state")

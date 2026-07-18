@@ -1,0 +1,22 @@
+[Unit]
+Description=Tourtect MinIO
+
+[Container]
+Image=quay.io/minio/minio:RELEASE.2024-05-10T01-41-38Z
+ContainerName=tourtect-minio
+Network=tourtect.network
+NetworkAlias=minio
+EnvironmentFile=%h/.config/tourtect/tourtect.env
+Volume=tourtect-minio.volume:/data
+Exec=server /data --console-address :9001
+HealthCmd=curl --fail http://127.0.0.1:9000/minio/health/live
+HealthInterval=10s
+HealthRetries=10
+NoNewPrivileges=true
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target

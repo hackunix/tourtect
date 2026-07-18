@@ -23,6 +23,23 @@ type AuditEvent struct {
 	CreatedAt    time.Time   `json:"created_at"`
 }
 
+type CommunityPriceReport struct {
+	PostID          uuid.UUID `json:"post_id"`
+	Item            string    `json:"item"`
+	AmountMinor     int64     `json:"amount_minor"`
+	Currency        string    `json:"currency"`
+	Unit            string    `json:"unit"`
+	ObservedAt      time.Time `json:"observed_at"`
+	IngestionStatus string    `json:"ingestion_status"`
+}
+
+type CommunityScamReport struct {
+	PostID             uuid.UUID `json:"post_id"`
+	ObservedAt         time.Time `json:"observed_at"`
+	CurrentSafetyState string    `json:"current_safety_state"`
+	TriageStatus       string    `json:"triage_status"`
+}
+
 type ConsentRecord struct {
 	ConsentID   uuid.UUID          `json:"consent_id"`
 	PrincipalID pgtype.UUID        `json:"principal_id"`
@@ -35,6 +52,15 @@ type ConsentRecord struct {
 	UserAgent   *string            `json:"user_agent"`
 }
 
+type Follow struct {
+	FollowID          uuid.UUID   `json:"follow_id"`
+	PrincipalID       uuid.UUID   `json:"principal_id"`
+	TargetType        string      `json:"target_type"`
+	TargetPrincipalID pgtype.UUID `json:"target_principal_id"`
+	TargetPlaceID     pgtype.UUID `json:"target_place_id"`
+	CreatedAt         time.Time   `json:"created_at"`
+}
+
 type Identity struct {
 	IdentityID   uuid.UUID `json:"identity_id"`
 	PrincipalID  uuid.UUID `json:"principal_id"`
@@ -44,6 +70,18 @@ type Identity struct {
 	EmailAtLink  *string   `json:"email_at_link"`
 	PasswordHash *string   `json:"password_hash"`
 	LinkedAt     time.Time `json:"linked_at"`
+}
+
+type Notification struct {
+	NotificationID uuid.UUID          `json:"notification_id"`
+	PrincipalID    uuid.UUID          `json:"principal_id"`
+	Kind           string             `json:"kind"`
+	ActorID        pgtype.UUID        `json:"actor_id"`
+	PostID         pgtype.UUID        `json:"post_id"`
+	CommentID      pgtype.UUID        `json:"comment_id"`
+	Message        string             `json:"message"`
+	ReadAt         pgtype.Timestamptz `json:"read_at"`
+	CreatedAt      time.Time          `json:"created_at"`
 }
 
 type OutboxEvent struct {
@@ -90,22 +128,52 @@ type PlaceAlias struct {
 }
 
 type Post struct {
-	PostID               uuid.UUID `json:"post_id"`
-	AuthorID             uuid.UUID `json:"author_id"`
-	PostType             string    `json:"post_type"`
-	OriginalLocale       string    `json:"original_locale"`
-	Title                string    `json:"title"`
-	Body                 string    `json:"body"`
-	EvidenceLevel        string    `json:"evidence_level"`
-	CommercialDisclosure string    `json:"commercial_disclosure"`
-	ModerationStatus     string    `json:"moderation_status"`
-	CreatedAt            time.Time `json:"created_at"`
-	UpdatedAt            time.Time `json:"updated_at"`
+	PostID               uuid.UUID       `json:"post_id"`
+	AuthorID             uuid.UUID       `json:"author_id"`
+	PostType             string          `json:"post_type"`
+	OriginalLocale       string          `json:"original_locale"`
+	Title                string          `json:"title"`
+	Body                 string          `json:"body"`
+	EvidenceLevel        string          `json:"evidence_level"`
+	CommercialDisclosure string          `json:"commercial_disclosure"`
+	ModerationStatus     string          `json:"moderation_status"`
+	CreatedAt            time.Time       `json:"created_at"`
+	UpdatedAt            time.Time       `json:"updated_at"`
+	RegionID             *string         `json:"region_id"`
+	StructuredData       json.RawMessage `json:"structured_data"`
+}
+
+type PostComment struct {
+	CommentID        uuid.UUID   `json:"comment_id"`
+	PostID           uuid.UUID   `json:"post_id"`
+	AuthorID         uuid.UUID   `json:"author_id"`
+	ParentCommentID  pgtype.UUID `json:"parent_comment_id"`
+	Body             string      `json:"body"`
+	ModerationStatus string      `json:"moderation_status"`
+	CreatedAt        time.Time   `json:"created_at"`
+	UpdatedAt        time.Time   `json:"updated_at"`
 }
 
 type PostPlaceLink struct {
 	PostID  uuid.UUID `json:"post_id"`
 	PlaceID uuid.UUID `json:"place_id"`
+}
+
+type PostReport struct {
+	ReportID    uuid.UUID `json:"report_id"`
+	PostID      uuid.UUID `json:"post_id"`
+	PrincipalID uuid.UUID `json:"principal_id"`
+	Reason      string    `json:"reason"`
+	Details     *string   `json:"details"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+type PostVote struct {
+	PostID      uuid.UUID `json:"post_id"`
+	PrincipalID uuid.UUID `json:"principal_id"`
+	Kind        string    `json:"kind"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type PriceObservation struct {
@@ -161,6 +229,23 @@ type Principal struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
+type PrincipalBlock struct {
+	BlockerID uuid.UUID `json:"blocker_id"`
+	BlockedID uuid.UUID `json:"blocked_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type Review struct {
+	PostID                  uuid.UUID   `json:"post_id"`
+	PlaceID                 uuid.UUID   `json:"place_id"`
+	VisitedAt               pgtype.Date `json:"visited_at"`
+	OverallRating           int16       `json:"overall_rating"`
+	PriceTransparencyRating *int16      `json:"price_transparency_rating"`
+	ServiceRating           *int16      `json:"service_rating"`
+	SafetyRating            *int16      `json:"safety_rating"`
+	ValueRating             *int16      `json:"value_rating"`
+}
+
 type SafetyDirectoryEntry struct {
 	EntryID        uuid.UUID `json:"entry_id"`
 	VersionID      uuid.UUID `json:"version_id"`
@@ -180,6 +265,12 @@ type SafetyDirectoryVersion struct {
 	Version     string    `json:"version"`
 	Description *string   `json:"description"`
 	PublishedAt time.Time `json:"published_at"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+type SavedPost struct {
+	PrincipalID uuid.UUID `json:"principal_id"`
+	PostID      uuid.UUID `json:"post_id"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 

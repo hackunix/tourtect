@@ -93,6 +93,24 @@ func (e EvidenceLevel) Valid() bool {
 	}
 }
 
+// Defines values for FollowRequestTargetType.
+const (
+	Place     FollowRequestTargetType = "place"
+	Principal FollowRequestTargetType = "principal"
+)
+
+// Valid indicates whether the value is a known member of the FollowRequestTargetType enum.
+func (e FollowRequestTargetType) Valid() bool {
+	switch e {
+	case Place:
+		return true
+	case Principal:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for GeoFallbackLevel.
 const (
 	Commune          GeoFallbackLevel = "commune"
@@ -381,8 +399,116 @@ func (e Vertical) Valid() bool {
 	}
 }
 
+// Defines values for GetFeedParamsMode.
+const (
+	GetFeedParamsModeFollowing GetFeedParamsMode = "following"
+	GetFeedParamsModeLatest    GetFeedParamsMode = "latest"
+	GetFeedParamsModeNearby    GetFeedParamsMode = "nearby"
+	GetFeedParamsModeSafety    GetFeedParamsMode = "safety"
+	GetFeedParamsModeTrending  GetFeedParamsMode = "trending"
+)
+
+// Valid indicates whether the value is a known member of the GetFeedParamsMode enum.
+func (e GetFeedParamsMode) Valid() bool {
+	switch e {
+	case GetFeedParamsModeFollowing:
+		return true
+	case GetFeedParamsModeLatest:
+		return true
+	case GetFeedParamsModeNearby:
+		return true
+	case GetFeedParamsModeSafety:
+		return true
+	case GetFeedParamsModeTrending:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ReportPostJSONBodyReason.
+const (
+	ReportPostJSONBodyReasonHarassment     ReportPostJSONBodyReason = "harassment"
+	ReportPostJSONBodyReasonMisinformation ReportPostJSONBodyReason = "misinformation"
+	ReportPostJSONBodyReasonOther          ReportPostJSONBodyReason = "other"
+	ReportPostJSONBodyReasonPii            ReportPostJSONBodyReason = "pii"
+	ReportPostJSONBodyReasonSafety         ReportPostJSONBodyReason = "safety"
+	ReportPostJSONBodyReasonSpam           ReportPostJSONBodyReason = "spam"
+)
+
+// Valid indicates whether the value is a known member of the ReportPostJSONBodyReason enum.
+func (e ReportPostJSONBodyReason) Valid() bool {
+	switch e {
+	case ReportPostJSONBodyReasonHarassment:
+		return true
+	case ReportPostJSONBodyReasonMisinformation:
+		return true
+	case ReportPostJSONBodyReasonOther:
+		return true
+	case ReportPostJSONBodyReasonPii:
+		return true
+	case ReportPostJSONBodyReasonSafety:
+		return true
+	case ReportPostJSONBodyReasonSpam:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SearchCommunityParamsTab.
+const (
+	SearchCommunityParamsTabPlaces       SearchCommunityParamsTab = "places"
+	SearchCommunityParamsTabPosts        SearchCommunityParamsTab = "posts"
+	SearchCommunityParamsTabPriceReports SearchCommunityParamsTab = "price_reports"
+	SearchCommunityParamsTabSafety       SearchCommunityParamsTab = "safety"
+	SearchCommunityParamsTabTop          SearchCommunityParamsTab = "top"
+)
+
+// Valid indicates whether the value is a known member of the SearchCommunityParamsTab enum.
+func (e SearchCommunityParamsTab) Valid() bool {
+	switch e {
+	case SearchCommunityParamsTabPlaces:
+		return true
+	case SearchCommunityParamsTabPosts:
+		return true
+	case SearchCommunityParamsTabPriceReports:
+		return true
+	case SearchCommunityParamsTabSafety:
+		return true
+	case SearchCommunityParamsTabTop:
+		return true
+	default:
+		return false
+	}
+}
+
 // AlertLevel defines model for AlertLevel.
 type AlertLevel string
+
+// AuthorSummary defines model for AuthorSummary.
+type AuthorSummary struct {
+	DisplayName string             `json:"display_name"`
+	PrincipalId openapi_types.UUID `json:"principal_id"`
+}
+
+// Comment defines model for Comment.
+type Comment struct {
+	Author           *AuthorSummary      `json:"author,omitempty"`
+	Body             string              `json:"body"`
+	CommentId        openapi_types.UUID  `json:"comment_id"`
+	CreatedAt        time.Time           `json:"created_at"`
+	ModerationStatus string              `json:"moderation_status"`
+	ParentCommentId  *openapi_types.UUID `json:"parent_comment_id,omitempty"`
+	PostId           openapi_types.UUID  `json:"post_id"`
+	UpdatedAt        time.Time           `json:"updated_at"`
+}
+
+// CommentListResponse defines model for CommentListResponse.
+type CommentListResponse struct {
+	Items      []Comment  `json:"items"`
+	Pagination CursorInfo `json:"pagination"`
+}
 
 // CommercialDisclosure defines model for CommercialDisclosure.
 type CommercialDisclosure string
@@ -393,13 +519,23 @@ type Coordinates struct {
 	Longitude float64 `json:"longitude"`
 }
 
+// CreateCommentRequest defines model for CreateCommentRequest.
+type CreateCommentRequest struct {
+	Body            string              `json:"body"`
+	ParentCommentId *openapi_types.UUID `json:"parent_comment_id,omitempty"`
+}
+
 // CreateDraftRequest defines model for CreateDraftRequest.
 type CreateDraftRequest struct {
 	Body           string                `json:"body"`
 	OriginalLocale Locale                `json:"original_locale"`
 	PlaceIds       *[]openapi_types.UUID `json:"place_ids,omitempty"`
 	PostType       PostType              `json:"post_type"`
-	Title          string                `json:"title"`
+	RegionId       *string               `json:"region_id,omitempty"`
+
+	// StructuredData Type-specific draft fields validated and persisted by the community domain.
+	StructuredData *map[string]interface{} `json:"structured_data,omitempty"`
+	Title          string                  `json:"title"`
 }
 
 // CursorInfo defines model for CursorInfo.
@@ -412,6 +548,21 @@ type CursorInfo struct {
 
 // EvidenceLevel defines model for EvidenceLevel.
 type EvidenceLevel string
+
+// FeedResponse defines model for FeedResponse.
+type FeedResponse struct {
+	Items      []Post     `json:"items"`
+	Pagination CursorInfo `json:"pagination"`
+}
+
+// FollowRequest defines model for FollowRequest.
+type FollowRequest struct {
+	TargetId   openapi_types.UUID      `json:"target_id"`
+	TargetType FollowRequestTargetType `json:"target_type"`
+}
+
+// FollowRequestTargetType defines model for FollowRequest.TargetType.
+type FollowRequestTargetType string
 
 // GeoFallbackLevel defines model for GeoFallbackLevel.
 type GeoFallbackLevel string
@@ -438,6 +589,33 @@ type Money struct {
 	AmountMinor string `json:"amount_minor"`
 	Currency    string `json:"currency"`
 	Exponent    int    `json:"exponent"`
+}
+
+// Notification defines model for Notification.
+type Notification struct {
+	ActorId        *openapi_types.UUID `json:"actor_id,omitempty"`
+	CommentId      *openapi_types.UUID `json:"comment_id,omitempty"`
+	CreatedAt      time.Time           `json:"created_at"`
+	Kind           string              `json:"kind"`
+	Message        string              `json:"message"`
+	NotificationId openapi_types.UUID  `json:"notification_id"`
+	PostId         *openapi_types.UUID `json:"post_id,omitempty"`
+	ReadAt         *time.Time          `json:"read_at,omitempty"`
+}
+
+// NotificationListResponse defines model for NotificationListResponse.
+type NotificationListResponse struct {
+	Items      []Notification `json:"items"`
+	Pagination CursorInfo     `json:"pagination"`
+}
+
+// PlaceAttachment defines model for PlaceAttachment.
+type PlaceAttachment struct {
+	Category  string             `json:"category"`
+	Freshness time.Time          `json:"freshness"`
+	Name      string             `json:"name"`
+	PlaceId   openapi_types.UUID `json:"place_id"`
+	RegionId  string             `json:"region_id"`
 }
 
 // PlaceDetail defines model for PlaceDetail.
@@ -489,18 +667,27 @@ type PlaceSummary struct {
 
 // Post defines model for Post.
 type Post struct {
-	AuthorId             openapi_types.UUID    `json:"author_id"`
-	Body                 string                `json:"body"`
-	CommercialDisclosure CommercialDisclosure  `json:"commercial_disclosure"`
-	CreatedAt            time.Time             `json:"created_at"`
-	EvidenceLevel        EvidenceLevel         `json:"evidence_level"`
-	ModerationStatus     ModerationStatus      `json:"moderation_status"`
-	OriginalLocale       Locale                `json:"original_locale"`
-	PlaceIds             *[]openapi_types.UUID `json:"place_ids,omitempty"`
-	PostId               openapi_types.UUID    `json:"post_id"`
-	PostType             PostType              `json:"post_type"`
-	Title                string                `json:"title"`
-	UpdatedAt            time.Time             `json:"updated_at"`
+	Author               *AuthorSummary          `json:"author,omitempty"`
+	AuthorId             openapi_types.UUID      `json:"author_id"`
+	Body                 string                  `json:"body"`
+	CommentCount         *int                    `json:"comment_count,omitempty"`
+	CommercialDisclosure CommercialDisclosure    `json:"commercial_disclosure"`
+	CreatedAt            time.Time               `json:"created_at"`
+	EvidenceLevel        EvidenceLevel           `json:"evidence_level"`
+	ModerationStatus     ModerationStatus        `json:"moderation_status"`
+	OriginalLocale       Locale                  `json:"original_locale"`
+	PlaceIds             *[]openapi_types.UUID   `json:"place_ids,omitempty"`
+	Places               *[]PlaceAttachment      `json:"places,omitempty"`
+	PostId               openapi_types.UUID      `json:"post_id"`
+	PostType             PostType                `json:"post_type"`
+	ReasonCodes          *[]string               `json:"reason_codes,omitempty"`
+	RegionId             *string                 `json:"region_id,omitempty"`
+	StructuredData       *map[string]interface{} `json:"structured_data,omitempty"`
+	Title                string                  `json:"title"`
+	UpdatedAt            time.Time               `json:"updated_at"`
+	UsefulCount          *int                    `json:"useful_count,omitempty"`
+	ViewerSaved          *bool                   `json:"viewer_saved,omitempty"`
+	ViewerUseful         *bool                   `json:"viewer_useful,omitempty"`
 }
 
 // PostListResponse defines model for PostListResponse.
@@ -613,6 +800,14 @@ type SafetyAssessmentRequest struct {
 // SafetyUrgency defines model for SafetyUrgency.
 type SafetyUrgency string
 
+// SearchResponse defines model for SearchResponse.
+type SearchResponse struct {
+	Places []PlaceSummary `json:"places"`
+	Posts  []Post         `json:"posts"`
+	Query  string         `json:"query"`
+	Tab    string         `json:"tab"`
+}
+
 // ServiceSegment defines model for ServiceSegment.
 type ServiceSegment string
 
@@ -654,6 +849,69 @@ type NotFound = ProblemDetail
 
 // UnprocessableEntity defines model for UnprocessableEntity.
 type UnprocessableEntity = ProblemDetail
+
+// UnblockPrincipalParams defines parameters for UnblockPrincipal.
+type UnblockPrincipalParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// BlockPrincipalParams defines parameters for BlockPrincipal.
+type BlockPrincipalParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// GetFeedParams defines parameters for GetFeed.
+type GetFeedParams struct {
+	Mode     GetFeedParamsMode `form:"mode" json:"mode"`
+	RegionId *string           `form:"region_id,omitempty" json:"region_id,omitempty"`
+
+	// Cursor Opaque cursor for pagination
+	Cursor *CursorParam `form:"cursor,omitempty" json:"cursor,omitempty"`
+
+	// Limit Maximum number of items to return
+	Limit *LimitParam `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// GetFeedParamsMode defines parameters for GetFeed.
+type GetFeedParamsMode string
+
+// DeleteFollowParams defines parameters for DeleteFollow.
+type DeleteFollowParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// CreateFollowParams defines parameters for CreateFollow.
+type CreateFollowParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// ListNotificationsParams defines parameters for ListNotifications.
+type ListNotificationsParams struct {
+	// Limit Maximum number of items to return
+	Limit *LimitParam `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// UpdateNotificationsJSONBody defines parameters for UpdateNotifications.
+type UpdateNotificationsJSONBody struct {
+	NotificationIds []openapi_types.UUID `json:"notification_ids"`
+	Read            bool                 `json:"read"`
+}
+
+// UpdateNotificationsParams defines parameters for UpdateNotifications.
+type UpdateNotificationsParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
 
 // ListPlacesParams defines parameters for ListPlaces.
 type ListPlacesParams struct {
@@ -724,8 +982,50 @@ type CreateDraftParams struct {
 	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
 }
 
+// ListCommentsParams defines parameters for ListComments.
+type ListCommentsParams struct {
+	// Limit Maximum number of items to return
+	Limit *LimitParam `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// CreateCommentParams defines parameters for CreateComment.
+type CreateCommentParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
 // PublishPostParams defines parameters for PublishPost.
 type PublishPostParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// ReportPostJSONBody defines parameters for ReportPost.
+type ReportPostJSONBody struct {
+	Details *string                  `json:"details,omitempty"`
+	Reason  ReportPostJSONBodyReason `json:"reason"`
+}
+
+// ReportPostParams defines parameters for ReportPost.
+type ReportPostParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// ReportPostJSONBodyReason defines parameters for ReportPost.
+type ReportPostJSONBodyReason string
+
+// UnmarkPostUsefulParams defines parameters for UnmarkPostUseful.
+type UnmarkPostUsefulParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// MarkPostUsefulParams defines parameters for MarkPostUseful.
+type MarkPostUsefulParams struct {
 	// XRequestID Client-provided request identifier for tracing
 	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
 }
@@ -742,8 +1042,53 @@ type CreateSafetyAssessmentParams struct {
 	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
 }
 
+// ListSavedPostsParams defines parameters for ListSavedPosts.
+type ListSavedPostsParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// UnsavePostParams defines parameters for UnsavePost.
+type UnsavePostParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// SavePostParams defines parameters for SavePost.
+type SavePostParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// SearchCommunityParams defines parameters for SearchCommunity.
+type SearchCommunityParams struct {
+	Q   string                    `form:"q" json:"q"`
+	Tab *SearchCommunityParamsTab `form:"tab,omitempty" json:"tab,omitempty"`
+
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// SearchCommunityParamsTab defines parameters for SearchCommunity.
+type SearchCommunityParamsTab string
+
+// DeleteFollowJSONRequestBody defines body for DeleteFollow for application/json ContentType.
+type DeleteFollowJSONRequestBody = FollowRequest
+
+// CreateFollowJSONRequestBody defines body for CreateFollow for application/json ContentType.
+type CreateFollowJSONRequestBody = FollowRequest
+
+// UpdateNotificationsJSONRequestBody defines body for UpdateNotifications for application/json ContentType.
+type UpdateNotificationsJSONRequestBody UpdateNotificationsJSONBody
+
 // CreateDraftJSONRequestBody defines body for CreateDraft for application/json ContentType.
 type CreateDraftJSONRequestBody = CreateDraftRequest
+
+// CreateCommentJSONRequestBody defines body for CreateComment for application/json ContentType.
+type CreateCommentJSONRequestBody = CreateCommentRequest
+
+// ReportPostJSONRequestBody defines body for ReportPost for application/json ContentType.
+type ReportPostJSONRequestBody ReportPostJSONBody
 
 // CreatePriceCheckJSONRequestBody defines body for CreatePriceCheck for application/json ContentType.
 type CreatePriceCheckJSONRequestBody = PriceCheckRequest
@@ -759,6 +1104,27 @@ type ServerInterface interface {
 	// HealthReady Readiness probe
 	// (GET /health/ready)
 	HealthReady(w http.ResponseWriter, r *http.Request)
+
+	// (DELETE /v1/blocks/{principalId})
+	UnblockPrincipal(w http.ResponseWriter, r *http.Request, principalId openapi_types.UUID, params UnblockPrincipalParams)
+
+	// (PUT /v1/blocks/{principalId})
+	BlockPrincipal(w http.ResponseWriter, r *http.Request, principalId openapi_types.UUID, params BlockPrincipalParams)
+	// GetFeed Get an explainable organic community feed
+	// (GET /v1/feed)
+	GetFeed(w http.ResponseWriter, r *http.Request, params GetFeedParams)
+
+	// (DELETE /v1/follows)
+	DeleteFollow(w http.ResponseWriter, r *http.Request, params DeleteFollowParams)
+
+	// (POST /v1/follows)
+	CreateFollow(w http.ResponseWriter, r *http.Request, params CreateFollowParams)
+
+	// (GET /v1/notifications)
+	ListNotifications(w http.ResponseWriter, r *http.Request, params ListNotificationsParams)
+
+	// (PATCH /v1/notifications)
+	UpdateNotifications(w http.ResponseWriter, r *http.Request, params UpdateNotificationsParams)
 	// ListPlaces List places
 	// (GET /v1/places)
 	ListPlaces(w http.ResponseWriter, r *http.Request, params ListPlacesParams)
@@ -771,15 +1137,42 @@ type ServerInterface interface {
 	// CreateDraft Create a draft post
 	// (POST /v1/posts/drafts)
 	CreateDraft(w http.ResponseWriter, r *http.Request, params CreateDraftParams)
+
+	// (GET /v1/posts/{postId}/comments)
+	ListComments(w http.ResponseWriter, r *http.Request, postId PostIdParam, params ListCommentsParams)
+
+	// (POST /v1/posts/{postId}/comments)
+	CreateComment(w http.ResponseWriter, r *http.Request, postId PostIdParam, params CreateCommentParams)
 	// PublishPost Publish a draft post
 	// (POST /v1/posts/{postId}/publish)
 	PublishPost(w http.ResponseWriter, r *http.Request, postId PostIdParam, params PublishPostParams)
+
+	// (POST /v1/posts/{postId}/reports)
+	ReportPost(w http.ResponseWriter, r *http.Request, postId PostIdParam, params ReportPostParams)
+
+	// (DELETE /v1/posts/{postId}/votes/useful)
+	UnmarkPostUseful(w http.ResponseWriter, r *http.Request, postId PostIdParam, params UnmarkPostUsefulParams)
+
+	// (PUT /v1/posts/{postId}/votes/useful)
+	MarkPostUseful(w http.ResponseWriter, r *http.Request, postId PostIdParam, params MarkPostUsefulParams)
 	// CreatePriceCheck Submit a price check
 	// (POST /v1/price-checks)
 	CreatePriceCheck(w http.ResponseWriter, r *http.Request, params CreatePriceCheckParams)
 	// CreateSafetyAssessment Submit a safety assessment request
 	// (POST /v1/safety/assessments)
 	CreateSafetyAssessment(w http.ResponseWriter, r *http.Request, params CreateSafetyAssessmentParams)
+
+	// (GET /v1/saved)
+	ListSavedPosts(w http.ResponseWriter, r *http.Request, params ListSavedPostsParams)
+
+	// (DELETE /v1/saved/posts/{postId})
+	UnsavePost(w http.ResponseWriter, r *http.Request, postId PostIdParam, params UnsavePostParams)
+
+	// (PUT /v1/saved/posts/{postId})
+	SavePost(w http.ResponseWriter, r *http.Request, postId PostIdParam, params SavePostParams)
+	// SearchCommunity Search public places and community content
+	// (GET /v1/search)
+	SearchCommunity(w http.ResponseWriter, r *http.Request, params SearchCommunityParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -810,6 +1203,376 @@ func (siw *ServerInterfaceWrapper) HealthReady(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.HealthReady(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UnblockPrincipal operation middleware
+func (siw *ServerInterfaceWrapper) UnblockPrincipal(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "principalId" -------------
+	var principalId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "principalId", r.PathValue("principalId"), &principalId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "principalId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params UnblockPrincipalParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UnblockPrincipal(w, r, principalId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// BlockPrincipal operation middleware
+func (siw *ServerInterfaceWrapper) BlockPrincipal(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "principalId" -------------
+	var principalId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "principalId", r.PathValue("principalId"), &principalId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "principalId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params BlockPrincipalParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.BlockPrincipal(w, r, principalId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetFeed operation middleware
+func (siw *ServerInterfaceWrapper) GetFeed(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetFeedParams
+
+	// ------------- Required query parameter "mode" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "mode", r.URL.Query(), &params.Mode, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "mode"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "mode", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "region_id" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "region_id", r.URL.Query(), &params.RegionId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "region_id"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "region_id", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "cursor" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "cursor", r.URL.Query(), &params.Cursor, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "cursor"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "cursor", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "limit", r.URL.Query(), &params.Limit, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		}
+		return
+	}
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetFeed(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteFollow operation middleware
+func (siw *ServerInterfaceWrapper) DeleteFollow(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DeleteFollowParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteFollow(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateFollow operation middleware
+func (siw *ServerInterfaceWrapper) CreateFollow(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateFollowParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateFollow(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListNotifications operation middleware
+func (siw *ServerInterfaceWrapper) ListNotifications(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListNotificationsParams
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "limit", r.URL.Query(), &params.Limit, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		}
+		return
+	}
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListNotifications(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateNotifications operation middleware
+func (siw *ServerInterfaceWrapper) UpdateNotifications(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params UpdateNotificationsParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateNotifications(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1187,6 +1950,119 @@ func (siw *ServerInterfaceWrapper) CreateDraft(w http.ResponseWriter, r *http.Re
 	handler.ServeHTTP(w, r)
 }
 
+// ListComments operation middleware
+func (siw *ServerInterfaceWrapper) ListComments(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "postId" -------------
+	var postId PostIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "postId", r.PathValue("postId"), &postId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "postId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListCommentsParams
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "limit", r.URL.Query(), &params.Limit, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		}
+		return
+	}
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListComments(w, r, postId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateComment operation middleware
+func (siw *ServerInterfaceWrapper) CreateComment(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "postId" -------------
+	var postId PostIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "postId", r.PathValue("postId"), &postId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "postId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateCommentParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateComment(w, r, postId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // PublishPost operation middleware
 func (siw *ServerInterfaceWrapper) PublishPost(w http.ResponseWriter, r *http.Request) {
 
@@ -1228,6 +2104,156 @@ func (siw *ServerInterfaceWrapper) PublishPost(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PublishPost(w, r, postId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ReportPost operation middleware
+func (siw *ServerInterfaceWrapper) ReportPost(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "postId" -------------
+	var postId PostIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "postId", r.PathValue("postId"), &postId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "postId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ReportPostParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ReportPost(w, r, postId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UnmarkPostUseful operation middleware
+func (siw *ServerInterfaceWrapper) UnmarkPostUseful(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "postId" -------------
+	var postId PostIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "postId", r.PathValue("postId"), &postId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "postId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params UnmarkPostUsefulParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UnmarkPostUseful(w, r, postId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// MarkPostUseful operation middleware
+func (siw *ServerInterfaceWrapper) MarkPostUseful(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "postId" -------------
+	var postId PostIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "postId", r.PathValue("postId"), &postId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "postId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params MarkPostUsefulParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.MarkPostUseful(w, r, postId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1310,6 +2336,214 @@ func (siw *ServerInterfaceWrapper) CreateSafetyAssessment(w http.ResponseWriter,
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateSafetyAssessment(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListSavedPosts operation middleware
+func (siw *ServerInterfaceWrapper) ListSavedPosts(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListSavedPostsParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListSavedPosts(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UnsavePost operation middleware
+func (siw *ServerInterfaceWrapper) UnsavePost(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "postId" -------------
+	var postId PostIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "postId", r.PathValue("postId"), &postId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "postId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params UnsavePostParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UnsavePost(w, r, postId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// SavePost operation middleware
+func (siw *ServerInterfaceWrapper) SavePost(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "postId" -------------
+	var postId PostIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "postId", r.PathValue("postId"), &postId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "postId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params SavePostParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SavePost(w, r, postId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// SearchCommunity operation middleware
+func (siw *ServerInterfaceWrapper) SearchCommunity(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params SearchCommunityParams
+
+	// ------------- Required query parameter "q" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "q", r.URL.Query(), &params.Q, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "q"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "q", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "tab" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "tab", r.URL.Query(), &params.Tab, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "tab"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "tab", Err: err})
+		}
+		return
+	}
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SearchCommunity(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1443,9 +2677,25 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/health/ready", wrapper.HealthReady)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/v1/places", wrapper.ListPlaces)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/v1/places/{placeId}", wrapper.GetPlace)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/v1/feed", wrapper.GetFeed)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/v1/search", wrapper.SearchCommunity)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/v1/posts", wrapper.ListPosts)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/posts/drafts", wrapper.CreateDraft)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/posts/{postId}/publish", wrapper.PublishPost)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/v1/posts/{postId}/comments", wrapper.ListComments)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/posts/{postId}/comments", wrapper.CreateComment)
+	m.HandleFunc(http.MethodDelete+" "+options.BaseURL+"/v1/posts/{postId}/votes/useful", wrapper.UnmarkPostUseful)
+	m.HandleFunc(http.MethodPut+" "+options.BaseURL+"/v1/posts/{postId}/votes/useful", wrapper.MarkPostUseful)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/v1/saved", wrapper.ListSavedPosts)
+	m.HandleFunc(http.MethodDelete+" "+options.BaseURL+"/v1/saved/posts/{postId}", wrapper.UnsavePost)
+	m.HandleFunc(http.MethodPut+" "+options.BaseURL+"/v1/saved/posts/{postId}", wrapper.SavePost)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/v1/notifications", wrapper.ListNotifications)
+	m.HandleFunc(http.MethodPatch+" "+options.BaseURL+"/v1/notifications", wrapper.UpdateNotifications)
+	m.HandleFunc(http.MethodDelete+" "+options.BaseURL+"/v1/follows", wrapper.DeleteFollow)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/follows", wrapper.CreateFollow)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/posts/{postId}/reports", wrapper.ReportPost)
+	m.HandleFunc(http.MethodDelete+" "+options.BaseURL+"/v1/blocks/{principalId}", wrapper.UnblockPrincipal)
+	m.HandleFunc(http.MethodPut+" "+options.BaseURL+"/v1/blocks/{principalId}", wrapper.BlockPrincipal)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/price-checks", wrapper.CreatePriceCheck)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/safety/assessments", wrapper.CreateSafetyAssessment)
 

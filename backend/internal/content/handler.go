@@ -116,14 +116,25 @@ func (h *Handler) CreateDraft(w http.ResponseWriter, r *http.Request, params ope
 			placeIDs = append(placeIDs, uuid.UUID(pid))
 		}
 	}
+	structuredData := json.RawMessage(`{}`)
+	if req.StructuredData != nil {
+		encoded, marshalErr := json.Marshal(*req.StructuredData)
+		if marshalErr != nil {
+			httpserver.WriteError(w, http.StatusUnprocessableEntity, "Unprocessable Entity", "Invalid structured_data", r.URL.Path, reqID)
+			return
+		}
+		structuredData = encoded
+	}
 
 	dp, err := h.service.CreateDraft(ctx, CreateDraftParams{
-		AuthorID: authorID,
-		PostType: string(req.PostType),
-		Locale:   string(req.OriginalLocale),
-		Title:    req.Title,
-		Body:     req.Body,
-		PlaceIds: placeIDs,
+		AuthorID:       authorID,
+		PostType:       string(req.PostType),
+		Locale:         string(req.OriginalLocale),
+		Title:          req.Title,
+		Body:           req.Body,
+		RegionID:       req.RegionId,
+		StructuredData: structuredData,
+		PlaceIds:       placeIDs,
 	})
 	if err != nil {
 		httpserver.WriteError(w, http.StatusBadRequest, "Bad Request", err.Error(), r.URL.Path, reqID)
@@ -165,7 +176,13 @@ func (h *Handler) Publish(w http.ResponseWriter, r *http.Request, postId openapi
 		return
 	}
 
-	dp, err := h.service.Publish(ctx, id)
+	authorID, err := uuid.Parse(httpserver.GetUserID(ctx))
+	if err != nil {
+		httpserver.WriteError(w, http.StatusUnauthorized, "Unauthorized", "User identity is missing or invalid", r.URL.Path, reqID)
+		return
+	}
+
+	dp, err := h.service.Publish(ctx, id, authorID)
 	if err != nil {
 		httpserver.WriteError(w, http.StatusConflict, "Publish conflict", err.Error(), r.URL.Path, reqID)
 		return

@@ -2,6 +2,7 @@ package content
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -55,12 +56,14 @@ func (s *Service) List(ctx context.Context, params ListPostsParams) ([]Post, *st
 }
 
 type CreateDraftParams struct {
-	AuthorID uuid.UUID
-	PostType string
-	Locale   string
-	Title    string
-	Body     string
-	PlaceIds []uuid.UUID
+	AuthorID       uuid.UUID
+	PostType       string
+	Locale         string
+	Title          string
+	Body           string
+	RegionID       *string
+	StructuredData json.RawMessage
+	PlaceIds       []uuid.UUID
 }
 
 func (s *Service) CreateDraft(ctx context.Context, params CreateDraftParams) (*Post, error) {
@@ -70,10 +73,17 @@ func (s *Service) CreateDraft(ctx context.Context, params CreateDraftParams) (*P
 	if params.Body == "" {
 		return nil, errors.New("body cannot be empty")
 	}
+	allowed := map[string]bool{"discussion": true, "question": true, "review": true, "price_report": true, "scam_report": true, "tip": true}
+	if !allowed[params.PostType] {
+		return nil, errors.New("post type is not available in the traveler composer")
+	}
+	if (params.PostType == "review" || params.PostType == "price_report" || params.PostType == "scam_report") && len(params.StructuredData) <= 2 {
+		return nil, errors.New("structured_data is required for this post type")
+	}
 
-	return s.repo.CreateDraft(ctx, params.AuthorID, params.PostType, params.Locale, params.Title, params.Body, params.PlaceIds)
+	return s.repo.CreateDraft(ctx, params.AuthorID, params.PostType, params.Locale, params.Title, params.Body, params.RegionID, params.StructuredData, params.PlaceIds)
 }
 
-func (s *Service) Publish(ctx context.Context, id uuid.UUID) (*Post, error) {
-	return s.repo.Publish(ctx, id)
+func (s *Service) Publish(ctx context.Context, id, authorID uuid.UUID) (*Post, error) {
+	return s.repo.Publish(ctx, id, authorID)
 }

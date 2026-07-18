@@ -4,18 +4,19 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
-	Port         string
-	DatabaseURL  string
-	RedisAddr    string
-	RedisPass    string
-	MinioUser    string
-	MinioPass    string
-	LogLevel     string
-	FptApiKey    string
-	FptBaseURL   string
+	Port        string
+	DatabaseURL string
+	RedisAddr   string
+	RedisPass   string
+	MinioUser   string
+	MinioPass   string
+	LogLevel    string
+	FptApiKey   string
+	FptBaseURL  string
 }
 
 func Load() (*Config, error) {
@@ -42,7 +43,10 @@ func Load() (*Config, error) {
 
 	logLevel := getEnv("LOG_LEVEL", "info")
 
-	fptApiKey := os.Getenv("FPT_AI_API_KEY")
+	fptApiKey, err := getSecret("FPT_AI_API_KEY", "FPT_AI_API_KEY_FILE")
+	if err != nil {
+		return nil, err
+	}
 	fptBaseURL := getEnv("FPT_AI_BASE_URL", "https://mkp-api.fptcloud.com")
 
 	return &Config{
@@ -56,6 +60,26 @@ func Load() (*Config, error) {
 		FptApiKey:   fptApiKey,
 		FptBaseURL:  fptBaseURL,
 	}, nil
+}
+
+// getSecret keeps normal environment variables convenient for development while
+// allowing Podman/Docker secrets to be mounted as files in deployed containers.
+// The explicit environment value wins so existing local workflows remain stable.
+func getSecret(envKey, fileEnvKey string) (string, error) {
+	if value := strings.TrimSpace(os.Getenv(envKey)); value != "" {
+		return value, nil
+	}
+
+	path := strings.TrimSpace(os.Getenv(fileEnvKey))
+	if path == "" {
+		return "", nil
+	}
+
+	value, err := os.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("read secret file configured by %s: %w", fileEnvKey, err)
+	}
+	return strings.TrimSpace(string(value)), nil
 }
 
 func getEnv(key, defaultValue string) string {

@@ -1,0 +1,5 @@
+[Unit]
+Description=Tourtect Redis data
+
+[Volume]
+VolumeName=tourtect-redis-data

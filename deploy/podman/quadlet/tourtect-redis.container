@@ -1,0 +1,21 @@
+[Unit]
+Description=Tourtect Redis
+
+[Container]
+Image=docker.io/library/redis:7.2.4-alpine
+ContainerName=tourtect-redis
+Network=tourtect.network
+NetworkAlias=redis
+Volume=tourtect-redis.volume:/data
+Exec=redis-server --appendonly yes
+HealthCmd=redis-cli ping
+HealthInterval=10s
+HealthRetries=10
+NoNewPrivileges=true
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target

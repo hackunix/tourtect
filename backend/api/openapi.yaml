@@ -122,6 +122,34 @@ paths:
         "500":
           $ref: "#/components/responses/InternalError"
 
+  /v1/feed:
+    get:
+      operationId: getFeed
+      tags: [community]
+      summary: Get an explainable organic community feed
+      parameters:
+        - { name: mode, in: query, required: true, schema: { type: string, enum: [following, nearby, latest, trending, safety] } }
+        - { name: region_id, in: query, schema: { type: string } }
+        - $ref: "#/components/parameters/CursorParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/RequestIdParam"
+      responses:
+        "200": { description: Explainable feed, content: { application/json: { schema: { $ref: "#/components/schemas/FeedResponse" } } } }
+        "422": { $ref: "#/components/responses/UnprocessableEntity" }
+
+  /v1/search:
+    get:
+      operationId: searchCommunity
+      tags: [community]
+      summary: Search public places and community content
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string, minLength: 2 } }
+        - { name: tab, in: query, schema: { type: string, enum: [top, places, posts, price_reports, safety], default: top } }
+        - $ref: "#/components/parameters/RequestIdParam"
+      responses:
+        "200": { description: Search results, content: { application/json: { schema: { $ref: "#/components/schemas/SearchResponse" } } } }
+        "422": { $ref: "#/components/responses/UnprocessableEntity" }
+
   /v1/posts:
     get:
       operationId: listPosts
@@ -207,6 +235,98 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
         "500":
           $ref: "#/components/responses/InternalError"
+
+  /v1/posts/{postId}/comments:
+    get:
+      operationId: listComments
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/PostIdParam" }, { $ref: "#/components/parameters/LimitParam" }, { $ref: "#/components/parameters/RequestIdParam" } ]
+      responses:
+        "200": { description: Flat comment thread with parent identifiers, content: { application/json: { schema: { $ref: "#/components/schemas/CommentListResponse" } } } }
+    post:
+      operationId: createComment
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/PostIdParam" }, { $ref: "#/components/parameters/RequestIdParam" } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateCommentRequest" } } } }
+      responses:
+        "201": { description: Comment created, content: { application/json: { schema: { $ref: "#/components/schemas/Comment" } } } }
+
+  /v1/posts/{postId}/votes/useful:
+    put:
+      operationId: markPostUseful
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/PostIdParam" }, { $ref: "#/components/parameters/RequestIdParam" } ]
+      responses: { "200": { description: Useful state set } }
+    delete:
+      operationId: unmarkPostUseful
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/PostIdParam" }, { $ref: "#/components/parameters/RequestIdParam" } ]
+      responses: { "200": { description: Useful state cleared } }
+
+  /v1/saved:
+    get:
+      operationId: listSavedPosts
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/RequestIdParam" } ]
+      responses: { "200": { description: Saved public posts, content: { application/json: { schema: { $ref: "#/components/schemas/PostListResponse" } } } } }
+
+  /v1/saved/posts/{postId}:
+    put:
+      operationId: savePost
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/PostIdParam" }, { $ref: "#/components/parameters/RequestIdParam" } ]
+      responses: { "200": { description: Post saved } }
+    delete:
+      operationId: unsavePost
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/PostIdParam" }, { $ref: "#/components/parameters/RequestIdParam" } ]
+      responses: { "200": { description: Post removed from saved list } }
+
+  /v1/notifications:
+    get:
+      operationId: listNotifications
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/LimitParam" }, { $ref: "#/components/parameters/RequestIdParam" } ]
+      responses: { "200": { description: Notifications, content: { application/json: { schema: { $ref: "#/components/schemas/NotificationListResponse" } } } } }
+    patch:
+      operationId: updateNotifications
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/RequestIdParam" } ]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [notification_ids, read], properties: { notification_ids: { type: array, items: { type: string, format: uuid } }, read: { type: boolean } } } } } }
+      responses: { "200": { description: Notification states updated } }
+
+  /v1/follows:
+    post:
+      operationId: createFollow
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/RequestIdParam" } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/FollowRequest" } } } }
+      responses: { "200": { description: Follow created idempotently } }
+    delete:
+      operationId: deleteFollow
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/RequestIdParam" } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/FollowRequest" } } } }
+      responses: { "200": { description: Follow removed idempotently } }
+
+  /v1/posts/{postId}/reports:
+    post:
+      operationId: reportPost
+      tags: [community]
+      parameters: [ { $ref: "#/components/parameters/PostIdParam" }, { $ref: "#/components/parameters/RequestIdParam" } ]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [reason], properties: { reason: { type: string, enum: [safety, pii, harassment, spam, misinformation, other] }, details: { type: string } } } } } }
+      responses: { "201": { description: Report queued for moderation } }
+
+  /v1/blocks/{principalId}:
+    parameters: [ { name: principalId, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: "#/components/parameters/RequestIdParam" } ]
+    put:
+      operationId: blockPrincipal
+      tags: [community]
+      responses: { "200": { description: Principal blocked idempotently } }
+    delete:
+      operationId: unblockPrincipal
+      tags: [community]
+      responses: { "200": { description: Principal unblocked idempotently } }
 
   /v1/price-checks:
     post:
@@ -556,7 +676,6 @@ components:
         updated_at:
           type: string
           format: date-time
-
     PlaceListResponse:
       type: object
       required: [items, pagination]
@@ -597,6 +716,11 @@ components:
           type: string
         body:
           type: string
+        region_id:
+          type: string
+        structured_data:
+          type: object
+          additionalProperties: true
         place_ids:
           type: array
           items:
@@ -614,6 +738,18 @@ components:
         updated_at:
           type: string
           format: date-time
+        author:
+          $ref: "#/components/schemas/AuthorSummary"
+        places:
+          type: array
+          items: { $ref: "#/components/schemas/PlaceAttachment" }
+        useful_count: { type: integer, minimum: 0 }
+        comment_count: { type: integer, minimum: 0 }
+        viewer_useful: { type: boolean }
+        viewer_saved: { type: boolean }
+        reason_codes:
+          type: array
+          items: { type: string }
 
     CreateDraftRequest:
       type: object
@@ -631,6 +767,12 @@ components:
           type: string
           minLength: 1
           maxLength: 50000
+        region_id:
+          type: string
+        structured_data:
+          type: object
+          description: Type-specific draft fields validated and persisted by the community domain.
+          additionalProperties: true
         place_ids:
           type: array
           items:
@@ -648,6 +790,93 @@ components:
             $ref: "#/components/schemas/Post"
         pagination:
           $ref: "#/components/schemas/CursorInfo"
+
+    AuthorSummary:
+      type: object
+      required: [principal_id, display_name]
+      properties:
+        principal_id: { type: string, format: uuid }
+        display_name: { type: string }
+
+    PlaceAttachment:
+      type: object
+      required: [place_id, name, category, region_id, freshness]
+      properties:
+        place_id: { type: string, format: uuid }
+        name: { type: string }
+        category: { type: string }
+        region_id: { type: string }
+        freshness: { type: string, format: date-time }
+
+    FeedResponse:
+      type: object
+      required: [items, pagination]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Post" } }
+        pagination: { $ref: "#/components/schemas/CursorInfo" }
+
+    SearchResponse:
+      type: object
+      required: [query, tab, places, posts]
+      properties:
+        query: { type: string }
+        tab: { type: string }
+        places: { type: array, items: { $ref: "#/components/schemas/PlaceSummary" } }
+        posts: { type: array, items: { $ref: "#/components/schemas/Post" } }
+
+    Comment:
+      type: object
+      required: [comment_id, post_id, body, moderation_status, created_at, updated_at]
+      properties:
+        comment_id: { type: string, format: uuid }
+        post_id: { type: string, format: uuid }
+        author: { $ref: "#/components/schemas/AuthorSummary" }
+        parent_comment_id: { type: string, format: uuid }
+        body: { type: string }
+        moderation_status: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    CreateCommentRequest:
+      type: object
+      required: [body]
+      properties:
+        body: { type: string, minLength: 1, maxLength: 10000 }
+        parent_comment_id: { type: string, format: uuid }
+
+    CommentListResponse:
+      type: object
+      required: [items, pagination]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Comment" } }
+        pagination: { $ref: "#/components/schemas/CursorInfo" }
+
+    Notification:
+      type: object
+      required: [notification_id, kind, message, created_at]
+      properties:
+        notification_id: { type: string, format: uuid }
+        kind: { type: string }
+        actor_id: { type: string, format: uuid }
+        post_id: { type: string, format: uuid }
+        comment_id: { type: string, format: uuid }
+        message: { type: string }
+        read_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+
+    NotificationListResponse:
+      type: object
+      required: [items, pagination]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Notification" } }
+        pagination: { $ref: "#/components/schemas/CursorInfo" }
+
+    FollowRequest:
+      type: object
+      required: [target_type, target_id]
+      properties:
+        target_type: { type: string, enum: [principal, place] }
+        target_id: { type: string, format: uuid }
 
     Money:
       type: object

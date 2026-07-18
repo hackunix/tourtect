@@ -1,0 +1,2 @@
+import styles from "./community.module.css";
+export default function FeedSkeleton(){return <div aria-label="Đang tải bài viết" role="status">{[0,1,2].map(item=><div className={styles.skeleton} key={item}><div className={styles.skeletonCircle}/><div><div className={styles.skeletonLine} style={{width:"38%"}}/><div className={styles.skeletonLine}/><div className={styles.skeletonLine} style={{width:"76%"}}/></div></div>)}</div>}

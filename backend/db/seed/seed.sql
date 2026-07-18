@@ -221,4 +221,35 @@ VALUES
     ('019078a0-5001-7000-8000-000000000001', 'hanoi', 'SOS Vietnam Hotline', 'hotline', '1900-599-920', 'Đường dây hỗ trợ du khách 24/7', 'vi-VN')
 ON CONFLICT DO NOTHING;
 
+-- ============================================================
+-- Community experience seed (FO-04, FO-07)
+-- ============================================================
+UPDATE posts p SET region_id = pl.region_id
+FROM post_place_links ppl JOIN places pl ON pl.place_id = ppl.place_id
+WHERE ppl.post_id = p.post_id AND p.region_id IS NULL;
+
+INSERT INTO post_comments (comment_id, post_id, author_id, body, created_at)
+VALUES
+    ('019078a0-6001-7000-8000-000000000001', '019078a0-2001-7000-8000-000000000001', '019078a0-0001-7000-8000-000000000002', 'Thanks — was the menu price clearly displayed?', now() - interval '4 days'),
+    ('019078a0-6001-7000-8000-000000000002', '019078a0-2001-7000-8000-000000000006', '019078a0-0001-7000-8000-000000000001', 'Cảm ơn, thông tin khung giờ rất hữu ích.', now() - interval '1 day')
+ON CONFLICT (comment_id) DO NOTHING;
+
+INSERT INTO post_votes (post_id, principal_id)
+VALUES
+    ('019078a0-2001-7000-8000-000000000001', '019078a0-0001-7000-8000-000000000002'),
+    ('019078a0-2001-7000-8000-000000000006', '019078a0-0001-7000-8000-000000000001')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO saved_posts (principal_id, post_id)
+VALUES ('019078a0-0001-7000-8000-000000000001', '019078a0-2001-7000-8000-000000000006')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO follows (follow_id, principal_id, target_type, target_principal_id)
+VALUES ('019078a0-7001-7000-8000-000000000001', '019078a0-0001-7000-8000-000000000001', 'principal', '019078a0-0001-7000-8000-000000000002')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO notifications (notification_id, principal_id, kind, actor_id, post_id, comment_id, message, created_at)
+VALUES ('019078a0-8001-7000-8000-000000000001', '019078a0-0001-7000-8000-000000000001', 'reply', '019078a0-0001-7000-8000-000000000002', '019078a0-2001-7000-8000-000000000001', '019078a0-6001-7000-8000-000000000001', 'Có phản hồi mới trong bài viết của bạn', now() - interval '4 days')
+ON CONFLICT (notification_id) DO NOTHING;
+
 COMMIT;

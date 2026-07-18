@@ -1,0 +1,21 @@
+[Unit]
+Description=Tourtect PostgreSQL/PostGIS
+
+[Container]
+Image=docker.io/postgis/postgis:16-3.4
+ContainerName=tourtect-postgres
+Network=tourtect.network
+NetworkAlias=postgres
+EnvironmentFile=%h/.config/tourtect/tourtect.env
+Volume=tourtect-postgres.volume:/var/lib/postgresql/data
+HealthCmd=pg_isready -U tourtect -d tourtect
+HealthInterval=10s
+HealthRetries=10
+NoNewPrivileges=true
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target

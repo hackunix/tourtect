@@ -15,7 +15,8 @@
 | Web/Zalo client | `01-product-experience/06-web-zalo.md` | `02-functional-requirements/01-forum-discovery.md`, `02-functional-requirements/03-external-content-monetization.md` |
 | Authentication/Google OAuth | `01-product-experience/09-authentication.md`, `05-api/01-conventions-endpoints.md` | `05-api/02-types-core-community.md`, `06-operations-safety/03-threat-model-safety-compliance.md` |
 | Monetization/business tools | `01-product-experience/08-monetization.md`, `02-functional-requirements/03-external-content-monetization.md` | `06-operations-safety/04-metrics-release-gates.md` |
-| Podman/local development | `03-architecture/05-local-runtime-podman.md` | `03-architecture/04-model-stack-routing.md` |
+| Vận hành FE + BE local | `docs/operations/frontend-backend-runbook.md`, `03-architecture/05-local-runtime-podman.md` | `03-architecture/04-model-stack-routing.md` |
+| Deploy rootless Podman/Quadlet, secret, backup | `docs/operations/podman-quadlet.md`, `compose.yaml` | `deploy/podman/quadlet/`, `docs/operations/frontend-backend-runbook.md` |
 | API CRUD chung | `05-api/01-conventions-endpoints.md` | Type file đúng domain trong `05-api/` |
 | Realtime protocol | `05-api/06-websocket-protocol.md`, `05-api/03-types-realtime-vision.md` | Live Voice hoặc Lens experience file |
 | Privacy/retention | `06-operations-safety/02-consent-retention.md` | `06-operations-safety/03-threat-model-safety-compliance.md` |

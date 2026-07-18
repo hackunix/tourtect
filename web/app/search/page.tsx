@@ -1,0 +1,10 @@
+import Link from "next/link";
+import { api, ProblemDetailError } from "@/lib/api";
+import { getDictionary,getLocale } from "@/lib/i18n";
+import AppShell from "@/components/AppShell";
+import PostItem from "@/components/PostItem";
+import ProblemDetailsState from "@/components/ProblemDetailsState";
+import styles from "@/components/community.module.css";
+export const dynamic="force-dynamic";
+export default async function SearchPage({searchParams}:{searchParams:Promise<{q?:string;tab?:string}>}){const {q="",tab="top"}=await searchParams;const dict=getDictionary(await getLocale());let result=null;let problem:null|ProblemDetailError=null;if(q.length>=2){try{result=await api.search(q,tab)}catch(e){if(e instanceof ProblemDetailError)problem=e}}
+return <AppShell dict={dict}><main className={styles.page}><header className={styles.pageHeader}><h1>{dict.search}</h1><form className={styles.searchForm}><label className="sr-only" htmlFor="q">Tìm địa điểm hoặc bài viết</label><input className={styles.field} id="q" name="q" defaultValue={q} placeholder="Địa điểm, bài viết, giá, khu vực…"/><button className={styles.buttonPrimary}>Tìm</button></form><nav className={styles.searchTabs} aria-label="Search result type">{[["top","Tất cả"],["places","Địa điểm"],["posts","Bài viết"],["price_reports","Báo giá"],["safety","An toàn"]].map(([value,label])=><Link className={styles.button} aria-current={tab===value?"page":undefined} href={`/search?q=${encodeURIComponent(q)}&tab=${value}`} key={value}>{label}</Link>)}</nav></header>{problem?<ProblemDetailsState detail={problem.message} requestId={problem.requestId}/>:!q?<div className={styles.empty}>Nhập ít nhất hai ký tự để tìm kiếm.</div>:<>{result?.places.map(place=><Link className={styles.placeAttachment} href={`/places/${place.place_id}`} key={place.place_id}><strong>{place.name}</strong><span>{place.category} · {place.region_id}</span></Link>)}{result?.posts.map(post=><PostItem post={post} key={post.post_id}/>)}{result&&result.places.length===0&&result.posts.length===0&&<div className={styles.empty}>Không tìm thấy kết quả phù hợp.</div>}</>}</main></AppShell>}

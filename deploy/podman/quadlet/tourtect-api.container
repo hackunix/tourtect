@@ -1,0 +1,27 @@
+[Unit]
+Description=Tourtect Go API
+Requires=tourtect-seed.service tourtect-redis.service tourtect-minio.service
+After=tourtect-seed.service tourtect-redis.service tourtect-minio.service
+
+[Container]
+Image=localhost/tourtect-backend:local
+Pull=never
+ContainerName=tourtect-api
+Network=tourtect.network
+NetworkAlias=api
+EnvironmentFile=%h/.config/tourtect/tourtect.env
+Environment=PORT=8080 POSTGRES_HOST=postgres REDIS_HOST=redis REDIS_PORT=6379
+PublishPort=127.0.0.1:8080:8080
+Exec=tourtect-api
+HealthCmd=wget --quiet --spider http://127.0.0.1:8080/health/live
+HealthInterval=10s
+HealthRetries=10
+NoNewPrivileges=true
+DropCapability=all
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=180
+
+[Install]
+WantedBy=default.target

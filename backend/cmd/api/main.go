@@ -12,15 +12,17 @@ import (
 	"syscall"
 	"time"
 
+	openapi_types "github.com/oapi-codegen/runtime/types"
+
 	"github.com/tourtect/backend/generated/openapi"
 	"github.com/tourtect/backend/internal/content"
 	"github.com/tourtect/backend/internal/places"
-	"github.com/tourtect/backend/internal/pricing"
-	"github.com/tourtect/backend/internal/safety"
 	"github.com/tourtect/backend/internal/platform/config"
 	"github.com/tourtect/backend/internal/platform/database"
 	"github.com/tourtect/backend/internal/platform/httpserver"
 	"github.com/tourtect/backend/internal/platform/logging"
+	"github.com/tourtect/backend/internal/pricing"
+	"github.com/tourtect/backend/internal/safety"
 )
 
 type Server struct {
@@ -88,6 +90,64 @@ func (s *Server) CreateDraft(w http.ResponseWriter, r *http.Request, params open
 
 func (s *Server) PublishPost(w http.ResponseWriter, r *http.Request, postId openapi.PostIdParam, params openapi.PublishPostParams) {
 	s.postsHandler.Publish(w, r, postId, params)
+}
+
+func (s *Server) GetFeed(w http.ResponseWriter, r *http.Request, _ openapi.GetFeedParams) {
+	s.postsHandler.Feed(w, r)
+}
+func (s *Server) SearchCommunity(w http.ResponseWriter, r *http.Request, _ openapi.SearchCommunityParams) {
+	s.postsHandler.Search(w, r)
+}
+func (s *Server) ListComments(w http.ResponseWriter, r *http.Request, postID openapi.PostIdParam, _ openapi.ListCommentsParams) {
+	r.SetPathValue("postId", postID.String())
+	s.postsHandler.Comments(w, r)
+}
+func (s *Server) CreateComment(w http.ResponseWriter, r *http.Request, postID openapi.PostIdParam, _ openapi.CreateCommentParams) {
+	r.SetPathValue("postId", postID.String())
+	s.postsHandler.Comments(w, r)
+}
+func (s *Server) MarkPostUseful(w http.ResponseWriter, r *http.Request, postID openapi.PostIdParam, _ openapi.MarkPostUsefulParams) {
+	r.SetPathValue("postId", postID.String())
+	s.postsHandler.UsefulVote(w, r)
+}
+func (s *Server) UnmarkPostUseful(w http.ResponseWriter, r *http.Request, postID openapi.PostIdParam, _ openapi.UnmarkPostUsefulParams) {
+	r.SetPathValue("postId", postID.String())
+	s.postsHandler.UsefulVote(w, r)
+}
+func (s *Server) ListSavedPosts(w http.ResponseWriter, r *http.Request, _ openapi.ListSavedPostsParams) {
+	s.postsHandler.SavedList(w, r)
+}
+func (s *Server) SavePost(w http.ResponseWriter, r *http.Request, postID openapi.PostIdParam, _ openapi.SavePostParams) {
+	r.SetPathValue("postId", postID.String())
+	s.postsHandler.SavedPost(w, r)
+}
+func (s *Server) UnsavePost(w http.ResponseWriter, r *http.Request, postID openapi.PostIdParam, _ openapi.UnsavePostParams) {
+	r.SetPathValue("postId", postID.String())
+	s.postsHandler.SavedPost(w, r)
+}
+func (s *Server) ListNotifications(w http.ResponseWriter, r *http.Request, _ openapi.ListNotificationsParams) {
+	s.postsHandler.Notifications(w, r)
+}
+func (s *Server) UpdateNotifications(w http.ResponseWriter, r *http.Request, _ openapi.UpdateNotificationsParams) {
+	s.postsHandler.Notifications(w, r)
+}
+func (s *Server) CreateFollow(w http.ResponseWriter, r *http.Request, _ openapi.CreateFollowParams) {
+	s.postsHandler.Follow(w, r)
+}
+func (s *Server) DeleteFollow(w http.ResponseWriter, r *http.Request, _ openapi.DeleteFollowParams) {
+	s.postsHandler.Follow(w, r)
+}
+func (s *Server) ReportPost(w http.ResponseWriter, r *http.Request, postID openapi.PostIdParam, _ openapi.ReportPostParams) {
+	r.SetPathValue("postId", postID.String())
+	s.postsHandler.ReportPost(w, r)
+}
+func (s *Server) BlockPrincipal(w http.ResponseWriter, r *http.Request, principalID openapi_types.UUID, _ openapi.BlockPrincipalParams) {
+	r.SetPathValue("principalId", principalID.String())
+	s.postsHandler.BlockPrincipal(w, r)
+}
+func (s *Server) UnblockPrincipal(w http.ResponseWriter, r *http.Request, principalID openapi_types.UUID, _ openapi.UnblockPrincipalParams) {
+	r.SetPathValue("principalId", principalID.String())
+	s.postsHandler.BlockPrincipal(w, r)
 }
 
 func (s *Server) CreatePriceCheck(w http.ResponseWriter, r *http.Request, params openapi.CreatePriceCheckParams) {

@@ -4,6 +4,7 @@
 
 # Local container data and overrides
 .local/
+backups/
 compose.override.yaml
 
 # Go build outputs

@@ -16,7 +16,7 @@ import (
 const createDraftPost = `-- name: CreateDraftPost :one
 INSERT INTO posts (author_id, post_type, original_locale, title, body, moderation_status)
 VALUES ($1, $2, $3, $4, $5, 'draft')
-RETURNING post_id, author_id, post_type, original_locale, title, body, evidence_level, commercial_disclosure, moderation_status, created_at, updated_at
+RETURNING post_id, author_id, post_type, original_locale, title, body, evidence_level, commercial_disclosure, moderation_status, created_at, updated_at, region_id, structured_data
 `
 
 type CreateDraftPostParams struct {
@@ -48,6 +48,8 @@ func (q *Queries) CreateDraftPost(ctx context.Context, arg CreateDraftPostParams
 		&i.ModerationStatus,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RegionID,
+		&i.StructuredData,
 	)
 	return i, err
 }
@@ -220,7 +222,7 @@ const publishPost = `-- name: PublishPost :one
 UPDATE posts
 SET moderation_status = 'published', updated_at = now()
 WHERE post_id = $1 AND moderation_status = 'draft'
-RETURNING post_id, author_id, post_type, original_locale, title, body, evidence_level, commercial_disclosure, moderation_status, created_at, updated_at
+RETURNING post_id, author_id, post_type, original_locale, title, body, evidence_level, commercial_disclosure, moderation_status, created_at, updated_at, region_id, structured_data
 `
 
 func (q *Queries) PublishPost(ctx context.Context, postID uuid.UUID) (Post, error) {
@@ -238,6 +240,8 @@ func (q *Queries) PublishPost(ctx context.Context, postID uuid.UUID) (Post, erro
 		&i.ModerationStatus,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RegionID,
+		&i.StructuredData,
 	)
 	return i, err
 }

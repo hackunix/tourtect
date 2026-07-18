@@ -1,0 +1,24 @@
+[Unit]
+Description=Tourtect Next.js Web
+Requires=tourtect-api.service
+After=tourtect-api.service
+
+[Container]
+Image=localhost/tourtect-web:local
+Pull=never
+ContainerName=tourtect-web
+Network=tourtect.network
+Environment=API_URL=http://api:8080 NEXT_PUBLIC_API_URL=http://127.0.0.1:8080 HOSTNAME=0.0.0.0 PORT=3000
+PublishPort=127.0.0.1:3000:3000
+HealthCmd=wget --quiet --spider http://127.0.0.1:3000/
+HealthInterval=10s
+HealthRetries=10
+NoNewPrivileges=true
+DropCapability=all
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=180
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,25 @@
+[Unit]
+Description=Load idempotent synthetic Tourtect demo data
+Requires=tourtect-migrate.service
+After=tourtect-migrate.service
+
+[Container]
+Image=localhost/tourtect-backend:local
+Pull=never
+ContainerName=tourtect-seed
+Network=tourtect.network
+EnvironmentFile=%h/.config/tourtect/tourtect.env
+Environment=POSTGRES_HOST=postgres
+Exec=tourtect-seed
+NoNewPrivileges=true
+DropCapability=all
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=180
+
+[Install]
+WantedBy=default.target

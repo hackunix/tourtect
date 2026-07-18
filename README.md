@@ -1,113 +1,105 @@
 # Tourtect — Travel Price Transparency & Community Safety Shield
 
-Bộ tài liệu này được cấu trúc để phát triển hệ thống Tourtect: giải pháp quét dị thường giá cả và bảo vệ an toàn cho khách du lịch.
+Tourtect là nền tảng cộng đồng giúp du khách chia sẻ kinh nghiệm địa phương, kiểm tra khoảng giá tham chiếu và nhận hướng dẫn an toàn đã được backend phê duyệt. Repository gồm Go modular monolith, Next.js Web, Android client và bộ tài liệu thiết kế theo Requirement ID.
 
----
+## Trạng thái hiện tại
 
-## 1. Bản Đồ Tài Liệu Hệ Thống (System Design)
+- Web: community feed responsive, search, saved, notifications, place detail, composer draft/confirm, Price Check và Safety Assessment.
+- Backend: REST API `:8080`, realtime server `:8081`, worker `:8082`, PostgreSQL/PostGIS, Redis và MinIO.
+- Community API: feed Following/Nearby/Latest/Trending/Safety, comments, useful, saved, follows, reports, blocks và notifications.
+- Authentication hiện dùng seed identity cho vertical slice; không phải cơ chế đăng nhập production.
+- Android không dùng chung mã UI với Web và được vận hành theo module riêng.
 
-Tài liệu thiết kế gốc được phân rã thành các phần chuyên biệt tại thư mục gốc để giảm context tokens cho tác vụ AI:
+## Chạy nhanh FE + BE
 
-| Thư mục | Nội dung |
-| --- | --- |
-| `00-overview/` | Tóm tắt, mục tiêu và phạm vi sản phẩm |
-| `01-product-experience/` | Trải nghiệm người dùng (UX) theo feature và kênh |
-| `02-functional-requirements/` | Danh sách Requirement ID dùng nghiệm thu |
-| `03-architecture/` | Kiến trúc module, boundary, model routing và runtime |
-| `04-data/` | Knowledge graph, dữ liệu giá/scam và thuật toán |
-| `05-api/` | Endpoint, public type, WebSocket và response mẫu |
-| `06-operations-safety/` | Offline, privacy, security, metric và testing |
-| `07-delivery/` | Demo, roadmap, risk, assumption và reference |
+Trên Linux `x86_64` hoặc `arm64`, dùng bootstrap tự động:
 
-*Chi tiết cách nạp tài liệu cho AI, xem tại [AGENTS.md](file:///home/hanitav/Documents/GitHub/tourtect/AGENTS.md) và [CONTEXT_MAP.md](file:///home/hanitav/Documents/GitHub/tourtect/CONTEXT_MAP.md).*
-
----
-
-## 2. Kiến Trúc Go Backend Monolith (`/backend`)
-
-Tourtect sử dụng kiến trúc Modular Monolith viết bằng Go, tối ưu hiệu năng và độ tin cậy.
-
-### Cấu Trúc Thư Mục
-* `cmd/`: Các điểm chạy chính (Binaries)
-  * `api/`: REST API Server phục vụ Web/Android (port `8080`).
-  * `realtime/`: WebSocket Server xử lý Push-To-Talk streaming (port `8081`).
-  * `worker/`: Background worker xử lý các tác vụ outbox bất đồng bộ (port `8082`).
-* `internal/`: Logic nghiệp vụ đóng gói theo module miền
-  * `places/`: Quản lý danh mục địa điểm du lịch, tích hợp truy vấn PostGIS geofencing.
-  * `content/`: Diễn đàn cộng đồng, quy trình nháp & xuất bản bài viết cảnh báo.
-  * `pricing/`: **Price Engine** — công cụ phân tích độ lệch giá và xác định alert level (typical/elevated/high_risk) hoàn toàn deterministic dựa trên phân vị cohort (P10, P50, P90).
-  * `safety/`: **Safety Engine** — công cụ phân tích sự cố an ninh khẩn cấp dựa trên quy tắc ưu tiên (Rule-First) để trả về hành động an toàn và hotline cứu hộ.
-  * `platform/`: Thư viện lõi (Config, Database pool pgx, slog Logger lọc nhạy cảm, Middleware stack).
-* `adapters/fptai/`: Adapter tích hợp với FPT AI và fake client phục vụ kiểm thử.
-* `db/`: Migrations quản lý bằng `goose` và queries biên dịch bằng `sqlc`.
-* `generated/`: Code Go tự động sinh từ OpenAPI schema và SQL queries.
-
----
-
-## 3. Web Client (`/web`)
-
-Dự án Next.js App Router (TypeScript) đóng vai trò là Client tiêu thụ REST API của Go backend.
-* **Quy tắc**: Không truy cập trực tiếp Postgres, không tự xử lý Price/Safety engine logic.
-* **Giao diện**: Glassmorphic UI hiện đại, phối màu Neon Obsidian (HSL), tối ưu hóa responsive di động.
-* **Tích hợp API**: Tự động tạo UUIDv4 tracing trên header `X-Request-ID` cho mọi request.
-
----
-
-## 4. Android Client (`/android`)
-
-Dự án Kotlin Native được tổ chức theo kiến trúc đa module hiện đại:
-* `:app`: Module khởi chạy và tích hợp điều hướng.
-* `:core:network`: Tích hợp OkHttp/Retrofit giao tiếp với Go backend.
-* `:core:database`: Bộ nhớ đệm Room DB phục vụ ngoại tuyến (Offline-First).
-* `:core:designsystem`: Bộ components giao diện Jetpack Compose dùng chung.
-* `:core:model` & `:core:security`: Dữ liệu dùng chung và lưu trữ khóa mật mã (Keystore).
-* `:feature-forum` & `:feature-safety`: Các màn hình tính năng giao diện người dùng.
-
----
-
-## 5. Quy Trình Chạy & Phát Triển Cục Bộ (Local Playbook)
-
-### 1. Chuẩn bị Môi trường
-Cần chuẩn bị sẵn Go (1.26+), Node.js, và Podman (hoặc Docker).
-
-Cài đặt các công cụ biên dịch:
 ```bash
-make bootstrap
+./scripts/setup-linux.sh
+./scripts/run-local.sh
 ```
 
-### 2. Khởi chạy Hạ tầng (Databases)
-```bash
-# Khởi chạy Postgres, Redis, MinIO
-make infra-up
+`setup-linux.sh` nhận diện `apt`, `dnf`, `pacman` hoặc `zypper`, cài dependency hệ thống, Go/Node phù hợp và tool codegen. `run-local.sh` bật hạ tầng, migration, seed, API và Web; `Ctrl+C` dừng app nhưng giữ volumes.
 
-# Kiểm tra trạng thái container
-make infra-status
+Kiểm tra trước mà không cài gì:
+
+```bash
+./scripts/setup-linux.sh --check-only
 ```
 
-### 3. Migrations & Seeding Dữ liệu mẫu Hanoi
-```bash
-# Chạy database migrations
-make db-migrate
+Thiết lập thủ công và các tùy chọn production/backend-only nằm trong runbook.
 
-# Nạp dữ liệu Hanoi giả lập
-make db-seed
+Muốn chạy toàn bộ FE + BE bằng rootless Podman, không cần cài Go/Node trên host:
+
+```bash
+cp .env.example .env
+make podman-up
 ```
 
-### 4. Biên dịch & Kiểm thử Go Backend
+Profile `app` build image non-root, chạy migration + synthetic seed idempotent rồi bật API/Web. Mọi cổng local bind vào `127.0.0.1`; secret AI có override riêng, không được bake vào image. Với máy demo chạy lâu dài, dùng Quadlet để systemd user quản lý restart/boot.
+
+Mở:
+
+- Web: <http://localhost:3000>
+- API liveness: <http://localhost:8080/health/live>
+- API readiness: <http://localhost:8080/health/ready>
+- MinIO console: <http://localhost:9001>
+
+Hướng dẫn đầy đủ, biến môi trường, kiểm thử và troubleshooting: [docs/operations/frontend-backend-runbook.md](docs/operations/frontend-backend-runbook.md).
+
+## Kiểm thử và build
+
 ```bash
-# Chạy bộ test suite (22+ tests cho Price/Safety engines)
+# Backend, cần PostgreSQL đã migrate
 make test
+make lint
 
-# Biên dịch ra 3 binaries
-make api
-make realtime
-make worker
+# Web
+cd web
+npm run lint
+npm test
+npm run build
+npx playwright install chromium   # chạy một lần trên máy mới
+npm run test:e2e
 ```
 
-### 5. Khởi chạy Ứng dụng
-* **Chạy API Backend**: `./backend/bin/api` (port `8080`)
-* **Chạy Web Frontend**: `cd web && npm run dev` (port `3000`)
-* **Kiểm tra sức khỏe Backend**:
-  ```bash
-  make verify-all
-  ```
+Khi sửa OpenAPI, SQL query hoặc migration:
+
+```bash
+make generate
+```
+
+Commit cả file generated tương ứng và ghi Requirement ID bị ảnh hưởng.
+
+## Cấu trúc repository
+
+| Đường dẫn | Nội dung |
+| --- | --- |
+| `backend/` | Go API, realtime, worker, domain modules, migrations và generated code |
+| `web/` | Next.js App Router, community UI và browser/unit tests |
+| `android/` | Kotlin/Jetpack Compose đa module |
+| `00-overview/`–`07-delivery/` | Tài liệu sản phẩm, requirements, architecture, API, safety và delivery |
+| `docs/design/` | Design-system semantics dùng chung giữa client |
+| `docs/operations/` | Runbook vận hành local và kiểm tra FE/BE |
+| `deploy/podman/quadlet/` | Rootless systemd/Quadlet units cho máy demo |
+| `scripts/` | Bootstrap Linux, launcher, secret, Quadlet và backup/restore |
+
+Agent/cộng tác viên phải đọc [AGENTS.md](AGENTS.md), [CONTEXT_MAP.md](CONTEXT_MAP.md) và chỉ nạp bounded context liên quan.
+
+## Nguyên tắc bắt buộc
+
+- Safety/privacy ưu tiên hơn tiện lợi, engagement và monetization.
+- Web/Android không truy cập trực tiếp Postgres và không tự tính Price/Safety result.
+- Không để advertiser spend, affiliate commission hoặc business tier tác động organic ranking.
+- Không tự sinh hotline, kết luận pháp lý hoặc cáo buộc cá nhân/doanh nghiệp lừa đảo.
+- Không đóng gói provider API key trong Web public bundle hoặc Android app.
+- Khi dữ liệu không đủ, trả `insufficient_data` hoặc abstain thay vì dựng dữ liệu giả.
+
+## Tài liệu chính
+
+- [Context map](CONTEXT_MAP.md)
+- [API catalog](05-api/01-conventions-endpoints.md)
+- [Local Podman runtime](03-architecture/05-local-runtime-podman.md)
+- [Frontend design system](docs/design/frontend-design-system.md)
+- [FE + BE operations runbook](docs/operations/frontend-backend-runbook.md)
+- [Rootless Podman + Quadlet operations](docs/operations/podman-quadlet.md)

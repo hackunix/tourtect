@@ -1,9 +1,15 @@
-.PHONY: bootstrap infra-up infra-down infra-status generate generate-openapi generate-sql db-migrate db-seed db-reset api realtime worker test test-unit test-integration lint verify-backend verify-realtime verify-all web-install web-build web-test android-build android-test
+.PHONY: setup-linux run-local bootstrap infra-up infra-down infra-reset infra-status podman-up podman-up-secret podman-down podman-backup quadlet-install generate generate-openapi generate-sql db-migrate db-seed db-reset api realtime worker test test-unit test-integration lint verify-backend verify-realtime verify-all web-install web-build web-test android-build android-test
 
 GOOSE_BIN=~/go/bin/goose
 SQLC_BIN=~/go/bin/sqlc
 OAPI_BIN=~/go/bin/oapi-codegen
 DB_URL="postgres://tourtect:change_me_postgres@localhost:5432/tourtect?sslmode=disable"
+
+setup-linux:
+	./scripts/setup-linux.sh
+
+run-local:
+	./scripts/run-local.sh
 
 bootstrap:
 	@echo "Installing development tools..."
@@ -16,10 +22,28 @@ infra-up:
 	podman compose up -d postgres redis minio
 
 infra-down:
+	podman compose down
+
+infra-reset:
 	podman compose down -v
 
 infra-status:
 	podman compose ps
+
+podman-up:
+	podman compose --profile app up --build -d
+
+podman-up-secret:
+	podman compose -f compose.yaml -f compose.secrets.yaml --profile app up --build -d
+
+podman-down:
+	podman compose --profile app down
+
+podman-backup:
+	./scripts/podman-backup.sh
+
+quadlet-install:
+	./scripts/install-quadlet.sh
 
 generate-openapi:
 	$(OAPI_BIN) -package openapi -generate types,std-http -o backend/generated/openapi/openapi.gen.go backend/api/openapi.yaml

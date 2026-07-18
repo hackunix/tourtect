@@ -1,0 +1,25 @@
+[Unit]
+Description=Apply Tourtect database migrations
+Requires=tourtect-postgres.service
+After=tourtect-postgres.service
+
+[Container]
+Image=localhost/tourtect-backend:local
+Pull=never
+ContainerName=tourtect-migrate
+Network=tourtect.network
+EnvironmentFile=%h/.config/tourtect/tourtect.env
+Environment=POSTGRES_HOST=postgres
+Exec=tourtect-migrate
+NoNewPrivileges=true
+DropCapability=all
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=180
+
+[Install]
+WantedBy=default.target
