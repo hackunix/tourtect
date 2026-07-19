@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       TZ: ${TZ:-Asia/Ho_Chi_Minh}
     ports:
-      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -100,7 +100,7 @@ services:
       FPT_AI_TEXT_MODEL: ${FPT_AI_TEXT_MODEL}
       TZ: ${TZ:-Asia/Ho_Chi_Minh}
     ports:
-      - "127.0.0.1:${API_PORT:-8080}:8080"
+      - "127.0.0.1:${API_PORT:-18080}:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -120,7 +120,7 @@ services:
     image: localhost/tourtect-backend:${TOURTECT_IMAGE_TAG:-local}
     command: ["tourtect-realtime"]
     environment:
-      PORT: "8081"
+      PORT: "18081"
       DATABASE_URL: postgres://${POSTGRES_USER:-tourtect}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-tourtect}?sslmode=disable
       REDIS_HOST: redis
       REDIS_PORT: "6379"
@@ -129,7 +129,7 @@ services:
       FPT_AI_API_KEY: ${FPT_AI_API_KEY}
       FPT_AI_TEXT_MODEL: ${FPT_AI_TEXT_MODEL}
     ports:
-      - "127.0.0.1:${REALTIME_PORT:-8081}:8081"
+      - "127.0.0.1:${REALTIME_PORT:-18081}:8081"
     depends_on:
       api:
         condition: service_healthy
@@ -140,7 +140,7 @@ services:
     image: localhost/tourtect-backend:${TOURTECT_IMAGE_TAG:-local}
     command: ["tourtect-worker"]
     environment:
-      PORT: "8082"
+      PORT: "18082"
       DATABASE_URL: postgres://${POSTGRES_USER:-tourtect}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-tourtect}?sslmode=disable
       REDIS_HOST: redis
       REDIS_PORT: "6379"
@@ -149,7 +149,7 @@ services:
       FPT_AI_API_KEY: ${FPT_AI_API_KEY}
       FPT_AI_TEXT_MODEL: ${FPT_AI_TEXT_MODEL}
     ports:
-      - "127.0.0.1:${WORKER_PORT:-8082}:8082"
+      - "127.0.0.1:${WORKER_PORT:-18082}:8082"
     depends_on:
       api:
         condition: service_healthy
@@ -165,16 +165,16 @@ services:
     image: localhost/tourtect-web:${TOURTECT_IMAGE_TAG:-local}
     environment:
       API_URL: http://api:8080
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
+      NEXT_PUBLIC_API_URL: http://api:8080
       HOSTNAME: 0.0.0.0
-      PORT: "80"
+      # PORT: "8080"
     ports:
-      - "0.0.0.0:${WEB_PORT:-80}:80"
+      - "0.0.0.0:${WEB_PORT:-8080}:8080"
     depends_on:
       api:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:80/"]
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:8080/"]
       interval: 10s
       timeout: 5s
       retries: 10
