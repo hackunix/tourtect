@@ -1,4 +1,4 @@
-.PHONY: setup-linux run-local bootstrap infra-up infra-down infra-reset infra-status podman-up podman-up-secret podman-down podman-backup quadlet-install generate generate-openapi generate-sql db-migrate db-seed db-reset api realtime worker test test-unit test-integration lint verify-backend verify-realtime verify-all web-install web-build web-test android-build android-test
+.PHONY: setup-linux run-local bootstrap infra-up infra-down infra-reset infra-status podman-up podman-up-secret podman-down podman-backup quadlet-install deploy generate generate-openapi generate-sql db-migrate db-seed db-reset api realtime worker test test-unit test-integration lint verify-backend verify-realtime verify-all web-install web-build web-test android-build android-test
 
 GOOSE_BIN=~/go/bin/goose
 SQLC_BIN=~/go/bin/sqlc
@@ -44,6 +44,9 @@ podman-backup:
 
 quadlet-install:
 	./scripts/install-quadlet.sh
+
+deploy:
+	./scripts/deploy.sh
 
 generate-openapi:
 	$(OAPI_BIN) -package openapi -generate types,std-http -o backend/generated/openapi/openapi.gen.go backend/api/openapi.yaml
