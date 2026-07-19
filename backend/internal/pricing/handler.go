@@ -67,16 +67,16 @@ func (h *Handler) CreatePriceCheck(w http.ResponseWriter, r *http.Request, param
 			Currency:    res.ObservedCurrency,
 			Exponent:    res.ObservedExponent,
 		},
-		DeviationRatio:  &res.DeviationRatio,
-		Confidence:      res.Confidence,
-		ComparisonScope: &res.ComparisonScope,
-		Freshness:       res.Freshness,
-		SampleSize:      &res.SampleSize,
-		SnapshotVersion: &res.SnapshotVersion,
-		Reasons:         res.Reasons,
+		DeviationRatio:             &res.DeviationRatio,
+		Confidence:                 res.Confidence,
+		ComparisonScope:            &res.ComparisonScope,
+		Freshness:                  res.Freshness,
+		SampleSize:                 &res.SampleSize,
+		SnapshotVersion:            &res.SnapshotVersion,
+		Reasons:                    res.Reasons,
 		PossibleBenignExplanations: &res.PossibleBenignExplanations,
-		DatasetVersion:  res.DatasetVersion,
-		TraceId:         res.TraceID,
+		DatasetVersion:             res.DatasetVersion,
+		TraceId:                    res.TraceID,
 	}
 
 	// Add reference if data is typical/elevated/high_risk (not insufficient_data)
@@ -95,7 +95,7 @@ func (h *Handler) CreatePriceCheck(w http.ResponseWriter, r *http.Request, param
 			VenueType:              (*openapi.VenueType)(&input.VenueType),
 			GeoFallbackLevel:       &fallbackLevel,
 			EffectiveSampleSize:    &res.SampleSize,
-			IndependentSourceCount: &res.SampleSize, // mapped for slice completeness
+			IndependentSourceCount: &res.IndependentSourceCount,
 		}
 	}
 

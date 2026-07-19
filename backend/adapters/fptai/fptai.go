@@ -90,11 +90,7 @@ func NewRealASR(client *FPTClient, model string) *RealASR {
 }
 
 func (r *RealASR) Transcribe(ctx context.Context, input AudioInput) (Transcript, error) {
-	// Format audio transcription request for FPT AI / OpenAI-compatible STT endpoint
-	// Typically POST /v1/audio/transcriptions (multipart request or JSON depends on API)
-	// For simplicity in this slice, we mock the real request payload or stub if not fully needed,
-	// but let's implement standard structure
-	return Transcript{Text: "Mô phỏng giọng nói dịch thành chữ từ FPT AI"}, nil
+	return Transcript{}, ErrCapabilityUnavailable
 }
 
 // Real Translation implementation (TranslationProvider)
@@ -162,7 +158,7 @@ func NewRealVision(client *FPTClient, model string) *RealVision {
 }
 
 func (r *RealVision) Observe(ctx context.Context, input VisionInput) (VisionObservation, error) {
-	return VisionObservation{Description: "Mô phỏng hình ảnh ghi nhận"}, nil
+	return VisionObservation{}, ErrCapabilityUnavailable
 }
 
 // Real Extraction implementation (ExtractionProvider)
@@ -176,5 +172,5 @@ func NewRealExtraction(client *FPTClient, model string) *RealExtraction {
 }
 
 func (r *RealExtraction) Extract(ctx context.Context, input ExtractionInput) (StructuredFacts, error) {
-	return StructuredFacts{Facts: []string{"price_dispute"}}, nil
+	return StructuredFacts{}, ErrCapabilityUnavailable
 }

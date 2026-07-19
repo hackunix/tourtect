@@ -28,6 +28,8 @@ FROM price_snapshots
 WHERE vertical = sqlc.arg('vertical')
     AND unit = sqlc.arg('unit')
     AND currency = sqlc.arg('currency')
+    AND service_segment = sqlc.arg('service_segment')
+    AND venue_type = sqlc.arg('venue_type')
     AND effective_from <= sqlc.arg('observed_at')
     AND (effective_to IS NULL OR effective_to > sqlc.arg('observed_at'))
 ORDER BY sample_size DESC

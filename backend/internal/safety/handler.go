@@ -65,7 +65,7 @@ func (h *Handler) CreateSafetyAssessment(w http.ResponseWriter, r *http.Request,
 		CoercionIndicators:    coercion,
 		AbilityToLeave:        req.AbilityToLeave,
 		UserConfirmedFacts:    facts,
-		RegionID:              "hanoi", // default region matching seed
+		RegionID:              valueOrEmpty(req.RegionId),
 	}
 
 	res, err := h.engine.Assess(ctx, input, reqID)
@@ -77,9 +77,9 @@ func (h *Handler) CreateSafetyAssessment(w http.ResponseWriter, r *http.Request,
 	// Format response to openapi.SafetyAssessment
 	resp := openapi.SafetyAssessment{
 		Urgency:                 openapi.SafetyUrgency(res.Urgency),
-		SafeActions:            res.SafeActions,
-		ApprovedActionCodes:    &res.ApprovedActionCodes,
-		ExplanationCodes:       &res.ExplanationCodes,
+		SafeActions:             res.SafeActions,
+		ApprovedActionCodes:     &res.ApprovedActionCodes,
+		ExplanationCodes:        &res.ExplanationCodes,
 		SilentModeRecommended:   &res.SilentModeRecommended,
 		SurfaceEmergencyOptions: &res.SurfaceEmergencyOptions,
 		EmergencyServiceIds:     &res.EmergencyServiceIDs,
@@ -90,4 +90,11 @@ func (h *Handler) CreateSafetyAssessment(w http.ResponseWriter, r *http.Request,
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func valueOrEmpty(value *string) string {
+	if value == nil {
+		return ""
+	}
+	return *value
 }

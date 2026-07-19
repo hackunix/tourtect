@@ -24,35 +24,35 @@ func NewEngine(pool *pgxpool.Pool) *Engine {
 }
 
 type AssessmentInput struct {
-	ObservedFacts        []string
-	UserReportedState    string
-	ThreatIndicators     []string
-	InjuryIndicators     []string
+	ObservedFacts         []string
+	UserReportedState     string
+	ThreatIndicators      []string
+	InjuryIndicators      []string
 	ConfinementIndicators []string
-	CoercionIndicators   []string
-	AbilityToLeave       *bool
-	UserConfirmedFacts   []string
-	RegionID             string
+	CoercionIndicators    []string
+	AbilityToLeave        *bool
+	UserConfirmedFacts    []string
+	RegionID              string
 }
 
 type AssessmentResult struct {
-	Urgency                 string
-	SafeActions             []string
-	ApprovedActionCodes     []string
-	ExplanationCodes        []string
-	SilentModeRecommended   bool
-	SurfaceEmergencyOptions bool
-	EmergencyServiceIDs     []string
-	SafetyDirectoryVersion  string
-	Confidence              float64
-	TraceID                 string
-	EmergencyContacts       []Contact
+	Urgency                 string    `json:"urgency"`
+	SafeActions             []string  `json:"safe_actions"`
+	ApprovedActionCodes     []string  `json:"approved_action_codes"`
+	ExplanationCodes        []string  `json:"explanation_codes"`
+	SilentModeRecommended   bool      `json:"silent_mode_recommended"`
+	SurfaceEmergencyOptions bool      `json:"surface_emergency_options"`
+	EmergencyServiceIDs     []string  `json:"emergency_service_ids"`
+	SafetyDirectoryVersion  string    `json:"safety_directory_version"`
+	Confidence              float64   `json:"confidence"`
+	TraceID                 string    `json:"trace_id"`
+	EmergencyContacts       []Contact `json:"emergency_contacts"`
 }
 
 type Contact struct {
-	Name        string
-	PhoneNumber string
-	Type        string
+	Name        string `json:"name"`
+	PhoneNumber string `json:"phone_number"`
+	Type        string `json:"type"`
 }
 
 func (e *Engine) Assess(ctx context.Context, input AssessmentInput, traceID string) (*AssessmentResult, error) {
@@ -81,23 +81,26 @@ func (e *Engine) Assess(ctx context.Context, input AssessmentInput, traceID stri
 		// Step 2: Query contact list for the region
 		region := input.RegionID
 		if region == "" {
-			region = "hanoi" // Default region matching seed data
-		}
-		entries, err := e.queries.GetSafetyEntriesByRegion(ctx, database.GetSafetyEntriesByRegionParams{
-			VersionID: activeVer.VersionID,
-			RegionID:  region,
-		})
-		if err == nil {
-			contacts := make([]Contact, 0, len(entries))
-			for _, entry := range entries {
-				contacts = append(contacts, Contact{
-					Name:        entry.ServiceName,
-					PhoneNumber: entry.PhoneNumber,
-					Type:        entry.ServiceType,
-				})
-				result.EmergencyServiceIDs = append(result.EmergencyServiceIDs, entry.EntryID.String())
+			result.ExplanationCodes = append(result.ExplanationCodes, "region_required_for_emergency_contacts")
+		} else {
+			entries, err := e.queries.GetSafetyEntriesByRegion(ctx, database.GetSafetyEntriesByRegionParams{
+				VersionID: activeVer.VersionID,
+				RegionID:  region,
+			})
+			if err == nil {
+				contacts := make([]Contact, 0, len(entries))
+				for _, entry := range entries {
+					contacts = append(contacts, Contact{
+						Name:        entry.ServiceName,
+						PhoneNumber: entry.PhoneNumber,
+						Type:        entry.ServiceType,
+					})
+					result.EmergencyServiceIDs = append(result.EmergencyServiceIDs, entry.EntryID.String())
+				}
+				result.EmergencyContacts = contacts
+			} else {
+				result.ExplanationCodes = append(result.ExplanationCodes, "regional_safety_directory_unavailable")
 			}
-			result.EmergencyContacts = contacts
 		}
 	}
 

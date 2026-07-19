@@ -41,7 +41,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close(websocket.StatusInternalError, "the server closed the connection")
 
-	sessionID := r.URL.Query().Get("sessionId")
+	sessionID := r.URL.Query().Get("session_id")
+	if sessionID == "" {
+		sessionID = r.URL.Query().Get("sessionId")
+	}
 	if sessionID == "" {
 		sessionID = uuid.New().String()
 	}
@@ -80,13 +83,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// Signal session is ready to client
-	onEvent(EventEnvelope{
-		Version:   1,
-		Type:      TypeSessionReady,
-		SessionID: sessionID,
-		Sequence:  1,
-		Timestamp: time.Now(),
-	})
+	onEvent(session.nextEvent(TypeSessionReady, "", "", nil))
 
 	// Framing read loop
 	for {
@@ -114,7 +111,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				Version:   1,
 				Type:      TypeAudioChunk,
 				SessionID: sessionID,
-				Sequence:  session.expectedSeq + 1,
+				Sequence:  session.nextClientSequence(),
 				Timestamp: time.Now(),
 			}
 			err = session.HandleEvent(r.Context(), env, data)

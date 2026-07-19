@@ -5,12 +5,149 @@
 package database
 
 import (
+	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type IngestionProvider string
+
+const (
+	IngestionProviderAistudio        IngestionProvider = "aistudio"
+	IngestionProviderInternalCrawler IngestionProvider = "internal_crawler"
+	IngestionProviderPartnerApi      IngestionProvider = "partner_api"
+)
+
+func (e *IngestionProvider) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = IngestionProvider(s)
+	case string:
+		*e = IngestionProvider(s)
+	default:
+		return fmt.Errorf("unsupported scan type for IngestionProvider: %T", src)
+	}
+	return nil
+}
+
+type NullIngestionProvider struct {
+	IngestionProvider IngestionProvider `json:"ingestion_provider"`
+	Valid             bool              `json:"valid"` // Valid is true if IngestionProvider is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullIngestionProvider) Scan(value interface{}) error {
+	if value == nil {
+		ns.IngestionProvider, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.IngestionProvider.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullIngestionProvider) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.IngestionProvider), nil
+}
+
+type IngestionStatus string
+
+const (
+	IngestionStatusPending    IngestionStatus = "pending"
+	IngestionStatusProcessing IngestionStatus = "processing"
+	IngestionStatusCompleted  IngestionStatus = "completed"
+	IngestionStatusFailed     IngestionStatus = "failed"
+)
+
+func (e *IngestionStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = IngestionStatus(s)
+	case string:
+		*e = IngestionStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for IngestionStatus: %T", src)
+	}
+	return nil
+}
+
+type NullIngestionStatus struct {
+	IngestionStatus IngestionStatus `json:"ingestion_status"`
+	Valid           bool            `json:"valid"` // Valid is true if IngestionStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullIngestionStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.IngestionStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.IngestionStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullIngestionStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.IngestionStatus), nil
+}
+
+type AssistantConfirmationAudit struct {
+	ConfirmationID uuid.UUID   `json:"confirmation_id"`
+	PrincipalID    uuid.UUID   `json:"principal_id"`
+	SessionID      uuid.UUID   `json:"session_id"`
+	Action         string      `json:"action"`
+	Decision       string      `json:"decision"`
+	ConsentScope   *string     `json:"consent_scope"`
+	ResultID       pgtype.UUID `json:"result_id"`
+	ExecutedAt     time.Time   `json:"executed_at"`
+}
+
+type AssistantFeedback struct {
+	FeedbackID          uuid.UUID       `json:"feedback_id"`
+	PrincipalID         uuid.UUID       `json:"principal_id"`
+	SessionID           uuid.UUID       `json:"session_id"`
+	AssistantMessageID  uuid.UUID       `json:"assistant_message_id"`
+	FeedbackType        string          `json:"feedback_type"`
+	FieldName           *string         `json:"field_name"`
+	OriginalAiOutput    json.RawMessage `json:"original_ai_output"`
+	UserCorrection      json.RawMessage `json:"user_correction"`
+	FinalConfirmedValue json.RawMessage `json:"final_confirmed_value"`
+	Provider            *string         `json:"provider"`
+	ModelVersion        *string         `json:"model_version"`
+	PolicyVersion       string          `json:"policy_version"`
+	ToolResults         json.RawMessage `json:"tool_results"`
+	ConsentToContribute bool            `json:"consent_to_contribute"`
+	ModerationStatus    string          `json:"moderation_status"`
+	CreatedAt           time.Time       `json:"created_at"`
+}
+
+type AssistantModelTrace struct {
+	TraceID         uuid.UUID   `json:"trace_id"`
+	PrincipalID     pgtype.UUID `json:"principal_id"`
+	SessionID       uuid.UUID   `json:"session_id"`
+	Intent          string      `json:"intent"`
+	ToolNames       []string    `json:"tool_names"`
+	ToolDurationsMs []int64     `json:"tool_durations_ms"`
+	Provider        *string     `json:"provider"`
+	ModelVersion    *string     `json:"model_version"`
+	PolicyVersion   string      `json:"policy_version"`
+	RetrievalCount  int32       `json:"retrieval_count"`
+	EvidenceIds     []uuid.UUID `json:"evidence_ids"`
+	Outcome         string      `json:"outcome"`
+	ErrorCategory   *string     `json:"error_category"`
+	FallbackUsed    bool        `json:"fallback_used"`
+	CreatedAt       time.Time   `json:"created_at"`
+}
 
 type AuditEvent struct {
 	EventID      uuid.UUID   `json:"event_id"`
@@ -50,6 +187,25 @@ type ConsentRecord struct {
 	RevokedAt   pgtype.Timestamptz `json:"revoked_at"`
 	IpHash      *string            `json:"ip_hash"`
 	UserAgent   *string            `json:"user_agent"`
+}
+
+type ExtractedRecord struct {
+	ID         uuid.UUID       `json:"id"`
+	RunID      uuid.UUID       `json:"run_id"`
+	SourceUrl  string          `json:"source_url"`
+	RawPayload json.RawMessage `json:"raw_payload"`
+	Processed  bool            `json:"processed"`
+	CreatedAt  time.Time       `json:"created_at"`
+}
+
+type ExtractionRun struct {
+	ID           uuid.UUID          `json:"id"`
+	Provider     IngestionProvider  `json:"provider"`
+	Status       IngestionStatus    `json:"status"`
+	StartedAt    time.Time          `json:"started_at"`
+	CompletedAt  pgtype.Timestamptz `json:"completed_at"`
+	ErrorMessage *string            `json:"error_message"`
+	CreatedAt    time.Time          `json:"created_at"`
 }
 
 type Follow struct {

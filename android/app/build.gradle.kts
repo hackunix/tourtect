@@ -20,9 +20,13 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        buildConfigField("String", "API_BASE_URL", "\"https://api.tourtect.invalid/\"")
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080/\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -40,6 +44,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.8"
@@ -58,6 +63,7 @@ dependencies {
     implementation(project(":core:security"))
     implementation(project(":core:designsystem"))
     implementation(project(":feature-forum"))
+    implementation(project(":feature-assistant"))
     implementation(project(":feature-safety"))
     implementation(project(":feature-live"))
     implementation(project(":feature-lens"))
@@ -65,11 +71,15 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.navigation.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling-preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp)
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)

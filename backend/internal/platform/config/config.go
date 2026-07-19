@@ -8,15 +8,16 @@ import (
 )
 
 type Config struct {
-	Port        string
-	DatabaseURL string
-	RedisAddr   string
-	RedisPass   string
-	MinioUser   string
-	MinioPass   string
-	LogLevel    string
-	FptApiKey   string
-	FptBaseURL  string
+	Port         string
+	DatabaseURL  string
+	RedisAddr    string
+	RedisPass    string
+	MinioUser    string
+	MinioPass    string
+	LogLevel     string
+	FptApiKey    string
+	FptBaseURL   string
+	FptTextModel string
 }
 
 func Load() (*Config, error) {
@@ -48,17 +49,19 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 	fptBaseURL := getEnv("FPT_AI_BASE_URL", "https://mkp-api.fptcloud.com")
+	fptTextModel := getEnv("FPT_AI_TEXT_MODEL", "")
 
 	return &Config{
-		Port:        port,
-		DatabaseURL: dbURL,
-		RedisAddr:   redisAddr,
-		RedisPass:   redisPass,
-		MinioUser:   minioUser,
-		MinioPass:   minioPass,
-		LogLevel:    logLevel,
-		FptApiKey:   fptApiKey,
-		FptBaseURL:  fptBaseURL,
+		Port:         port,
+		DatabaseURL:  dbURL,
+		RedisAddr:    redisAddr,
+		RedisPass:    redisPass,
+		MinioUser:    minioUser,
+		MinioPass:    minioPass,
+		LogLevel:     logLevel,
+		FptApiKey:    fptApiKey,
+		FptBaseURL:   fptBaseURL,
+		FptTextModel: fptTextModel,
 	}, nil
 }
 

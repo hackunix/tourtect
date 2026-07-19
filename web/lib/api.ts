@@ -51,16 +51,90 @@ export interface SafetyAssessment {
   emergency_service_ids?: string[]; safety_directory_version: string; confidence: number; trace_id: string;
 }
 
+export type AssistantIntent =
+  | "general_travel_question" | "place_discovery" | "place_information" | "price_check"
+  | "price_explanation" | "translation" | "live_translation" | "menu_or_receipt_analysis"
+  | "scam_pattern_assessment" | "safety_assessment" | "emergency_help" | "community_search"
+  | "create_report_draft" | "unknown";
+export type AssistantInputType = "text" | "voice_transcript" | "image_capture" | "structured_price_candidate" | "structured_safety_facts";
+export type AssistantSafetyState = "critical" | "urgent" | "non_emergency" | "information" | "unknown";
+
+export interface CreateAssistantSessionRequest {
+  locale: string; target_locale?: string; place_id?: string; approximate_region?: string;
+  interaction_mode?: "text" | "voice" | "lens" | "mixed"; processing_consent?: boolean;
+}
+export interface AssistantSessionContext {
+  locale: string; target_locale?: string; place_id?: string; approximate_region?: string;
+  interaction_mode: string; current_safety_state?: AssistantSafetyState;
+  user_confirmed_facts?: string[]; active_capture_ids?: string[];
+  consent_state: { processing: boolean; contribution: boolean; publish: boolean };
+}
+export interface AssistantSession {
+  session_id: string; version: number; created_at: string; updated_at: string; expires_at: string;
+  context: AssistantSessionContext; recent_responses?: AssistantResponse[];
+}
+export interface AssistantMessageRequest {
+  message_id: string; input_type: AssistantInputType; text?: string; locale?: string;
+  place_id?: string; capture_id?: string; user_confirmed?: boolean; structured_data?: Record<string, unknown>;
+}
+export interface AssistantEvidence {
+  evidence_id: string;
+  source_type: "official_source" | "community_post" | "verified_price_observation" | "price_snapshot" | "safety_directory" | "scam_pattern" | "place_record" | "session_fact";
+  source_id: string; title: string; summary: string; observed_at?: string;
+  freshness: "fresh" | "aging" | "stale" | "unknown";
+  evidence_level: "official" | "verified" | "community" | "session_confirmed"; source_url?: string;
+}
+export interface AssistantToolResult {
+  tool_result_id: string; tool_name: string; status: "succeeded" | "insufficient_data" | "degraded" | "failed";
+  duration_ms: number; output: Record<string, unknown>; error_category?: string;
+}
+export interface AssistantConfirmation {
+  confirmation_id: string;
+  action: "create_report_draft" | "publish_report" | "upload_evidence" | "save_transcript" | "share_location" | "open_dialer" | "contact_trusted_person" | "contribute_observation";
+  title: string; description: string; expires_at: string;
+}
+export interface AssistantSuggestedAction {
+  action_id: string; label: string;
+  action_type: "clarify" | "deep_link" | "confirmation" | "manual_price_check" | "manual_safety_assessment" | "offline_directory" | "save_private_draft";
+  target?: string; requires_confirmation: boolean;
+}
+export interface AssistantResponse {
+  assistant_message_id: string; intent: AssistantIntent; message: string; confidence: number;
+  evidence: AssistantEvidence[]; tool_results: AssistantToolResult[];
+  requested_confirmation?: AssistantConfirmation; suggested_actions: AssistantSuggestedAction[];
+  safety_state: AssistantSafetyState; factors_considered: string[]; missing_information: string[];
+  freshness?: string; dataset_version?: string; fallback_used: boolean; trace_id: string;
+}
+export interface AssistantConfirmationRequest { confirmation_id: string; decision: "confirmed" | "rejected" }
+export interface AssistantConfirmationResult { confirmation_id: string; action: string; status: "confirmed" | "rejected"; executed_at: string; result_id?: string; target?: string }
+export interface AssistantFeedbackRequest {
+  assistant_message_id: string;
+  feedback_type: "helpful" | "not_helpful" | "correction" | "translation_incorrect" | "false_positive" | "confirm_extraction" | "contribute_redacted_observation";
+  field?: string; original_value?: string; corrected_value?: string; consent_to_contribute?: boolean;
+}
+export interface AssistantFeedbackReceipt { feedback_id: string; status: "quarantined"; created_at: string }
+
 export class ProblemDetailError extends Error {
   constructor(public status: number, message: string, public requestId?: string, public problem?: Record<string, unknown>) { super(message); this.name = "ProblemDetailError" }
 }
 
 const BASE_URL = typeof window === "undefined"
   ? (process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080")
-  : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080");
+  : "";
+
+export function safeUUID(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const requestId = crypto.randomUUID();
+  const requestId = safeUUID();
   const response = await fetch(`${BASE_URL}${path}`, {
     cache: "no-store", ...options,
     headers: { "Content-Type": "application/json", "X-Request-ID": requestId, ...options?.headers },
@@ -71,6 +145,7 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
     const detail = typeof problem.detail === "string" ? problem.detail : typeof problem.title === "string" ? problem.title : "API request failed";
     throw new ProblemDetailError(response.status, detail, String(problem.request_id || response.headers.get("X-Request-ID") || requestId), problem);
   }
+  if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
 }
 
@@ -94,4 +169,10 @@ export const api = {
   getNotifications: () => apiFetch<{ items: Notification[]; pagination: CursorInfo }>("/v1/notifications"),
   checkPrice: (body: PriceCheckRequest) => apiFetch<PriceInsight>("/v1/price-checks", { method: "POST", body: JSON.stringify(body) }),
   assessSafety: (body: SafetyAssessmentRequest) => apiFetch<SafetyAssessment>("/v1/safety/assessments", { method: "POST", body: JSON.stringify(body) }),
+  createAssistantSession: (body: CreateAssistantSessionRequest, signal?: AbortSignal) => apiFetch<AssistantSession>("/v1/assistant/sessions", { method: "POST", body: JSON.stringify(body), signal }),
+  getAssistantSession: (sessionId: string, signal?: AbortSignal) => apiFetch<AssistantSession>(`/v1/assistant/sessions/${sessionId}`, { signal }),
+  deleteAssistantSession: (sessionId: string, signal?: AbortSignal) => apiFetch<void>(`/v1/assistant/sessions/${sessionId}`, { method: "DELETE", signal }),
+  createAssistantMessage: (sessionId: string, body: AssistantMessageRequest, signal?: AbortSignal) => apiFetch<AssistantResponse>(`/v1/assistant/sessions/${sessionId}/messages`, { method: "POST", body: JSON.stringify(body), signal }),
+  confirmAssistantAction: (sessionId: string, body: AssistantConfirmationRequest, signal?: AbortSignal) => apiFetch<AssistantConfirmationResult>(`/v1/assistant/sessions/${sessionId}/confirmations`, { method: "POST", body: JSON.stringify(body), signal }),
+  createAssistantFeedback: (sessionId: string, body: AssistantFeedbackRequest, signal?: AbortSignal) => apiFetch<AssistantFeedbackReceipt>(`/v1/assistant/sessions/${sessionId}/feedback`, { method: "POST", body: JSON.stringify(body), signal }),
 };

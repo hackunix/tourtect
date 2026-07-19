@@ -14,6 +14,6 @@ export default function ContextPanel() {
   return <>
     <section className={styles.contextCard}><h2>Kiểm tra giá nhanh</h2><p>So sánh với cohort đã phiên bản hóa; kết quả không phải bằng chứng gian lận.</p><form className={styles.toolForm} onSubmit={checkPrice}><label>Số tiền (VND)<input className={styles.field} inputMode="numeric" value={amount} onChange={e=>setAmount(e.target.value)}/></label><button className={styles.button} disabled={busy}>Kiểm tra</button></form>{price&&<PriceInsight insight={price}/>}</section>
     <section className={styles.contextCard} id="safety"><h2><span aria-hidden>⚠ </span>Hướng dẫn an toàn</h2><p>Mở đánh giá rule-first; không tự gọi hay chia sẻ vị trí.</p><button className={styles.button} type="button" onClick={assess} disabled={busy}>Đánh giá tình huống mẫu</button>{safety&&<SafetyAlert assessment={safety}/>}</section>
-    {error&&<p className={styles.errorText} role="alert">{error}</p>}<section className={styles.contextCard}><h2>Khám phá địa điểm</h2><p>Chọn vùng thủ công trước khi xem nội dung gần đây.</p><Link className={styles.contextLink} href="/?mode=nearby&region_id=hanoi-hoan-kiem">Xem quanh Hoàn Kiếm →</Link></section>
+    {error&&<p className={styles.errorText} role="alert">{error}</p>}<section className={styles.contextCard}><h2>Khám phá địa điểm</h2><p>Chọn vùng thủ công trước khi xem nội dung gần đây.</p><Link className={styles.contextLink} href="/community?mode=nearby&region_id=hanoi-hoan-kiem">Xem quanh Hoàn Kiếm →</Link></section>
   </>;
 }

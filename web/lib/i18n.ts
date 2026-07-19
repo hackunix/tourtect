@@ -4,14 +4,14 @@ import type { Locale } from "./api";
 
 const dictionaries = {
   "vi-VN": {
-    home: "Trang chủ", search: "Tìm kiếm", create: "Đăng bài", saved: "Đã lưu", notifications: "Thông báo",
+    home: "Trợ lý", assistant: "Trợ lý", explore: "Khám phá", community: "Cộng đồng", live: "Live", lens: "Lens", search: "Tìm kiếm", create: "Đăng bài", saved: "Đã lưu", notifications: "Thông báo",
     profile: "Hồ sơ", sos: "Trợ giúp khẩn cấp", feedTitle: "Cộng đồng du lịch",
     feedSubtitle: "Kinh nghiệm địa phương, giá cả minh bạch và thông tin an toàn.",
     following: "Đang theo dõi", nearby: "Gần đây", latest: "Mới nhất", trending: "Nổi bật", safety: "An toàn",
     retry: "Thử lại", empty: "Chưa có bài viết phù hợp.", composerPrompt: "Bạn muốn du khách biết điều gì?",
   },
   en: {
-    home: "Home", search: "Search", create: "Create", saved: "Saved", notifications: "Notifications",
+    home: "Assistant", assistant: "Assistant", explore: "Explore", community: "Community", live: "Live", lens: "Lens", search: "Search", create: "Create", saved: "Saved", notifications: "Notifications",
     profile: "Profile", sos: "Emergency help", feedTitle: "Traveler community",
     feedSubtitle: "Local knowledge, transparent prices, and safety-aware guidance.",
     following: "Following", nearby: "Nearby", latest: "Latest", trending: "Trending", safety: "Safety",

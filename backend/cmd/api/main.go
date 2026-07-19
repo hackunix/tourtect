@@ -14,8 +14,18 @@ import (
 
 	openapi_types "github.com/oapi-codegen/runtime/types"
 
+	"github.com/tourtect/backend/adapters/fptai"
 	"github.com/tourtect/backend/generated/openapi"
 	"github.com/tourtect/backend/internal/content"
+	"github.com/tourtect/backend/internal/intelligence"
+	"github.com/tourtect/backend/internal/intelligence/evidence"
+	"github.com/tourtect/backend/internal/intelligence/feedback"
+	"github.com/tourtect/backend/internal/intelligence/intent"
+	intelligenceorchestrator "github.com/tourtect/backend/internal/intelligence/orchestrator"
+	"github.com/tourtect/backend/internal/intelligence/response"
+	"github.com/tourtect/backend/internal/intelligence/retrieval"
+	assistantsession "github.com/tourtect/backend/internal/intelligence/session"
+	"github.com/tourtect/backend/internal/intelligence/tools"
 	"github.com/tourtect/backend/internal/places"
 	"github.com/tourtect/backend/internal/platform/config"
 	"github.com/tourtect/backend/internal/platform/database"
@@ -26,11 +36,12 @@ import (
 )
 
 type Server struct {
-	db            *database.DB
-	placesHandler *places.Handler
-	postsHandler  *content.Handler
-	priceHandler  *pricing.Handler
-	safetyHandler *safety.Handler
+	db               *database.DB
+	placesHandler    *places.Handler
+	postsHandler     *content.Handler
+	priceHandler     *pricing.Handler
+	safetyHandler    *safety.Handler
+	assistantHandler *intelligence.Handler
 }
 
 // Ensure Server implements openapi.ServerInterface
@@ -39,7 +50,7 @@ var _ openapi.ServerInterface = (*Server)(nil)
 func (s *Server) HealthLive(w http.ResponseWriter, r *http.Request) {
 	now := time.Now()
 	resp := openapi.HealthStatus{
-		Status:    openapi.Ok,
+		Status:    openapi.HealthStatusStatusOk,
 		Timestamp: &now,
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -51,10 +62,10 @@ func (s *Server) HealthReady(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	checks := make(map[string]string)
-	status := openapi.Ok
+	status := openapi.HealthStatusStatusOk
 
 	if err := s.db.Ping(ctx); err != nil {
-		status = openapi.Unavailable
+		status = openapi.HealthStatusStatusUnavailable
 		checks["postgres"] = "DOWN: " + err.Error()
 		w.WriteHeader(http.StatusServiceUnavailable)
 	} else {
@@ -158,6 +169,25 @@ func (s *Server) CreateSafetyAssessment(w http.ResponseWriter, r *http.Request, 
 	s.safetyHandler.CreateSafetyAssessment(w, r, params)
 }
 
+func (s *Server) CreateAssistantSession(w http.ResponseWriter, r *http.Request, _ openapi.CreateAssistantSessionParams) {
+	s.assistantHandler.CreateSession(w, r)
+}
+func (s *Server) GetAssistantSession(w http.ResponseWriter, r *http.Request, sessionID openapi.AssistantSessionIdParam, _ openapi.GetAssistantSessionParams) {
+	s.assistantHandler.GetSession(w, r, sessionID)
+}
+func (s *Server) DeleteAssistantSession(w http.ResponseWriter, r *http.Request, sessionID openapi.AssistantSessionIdParam, _ openapi.DeleteAssistantSessionParams) {
+	s.assistantHandler.DeleteSession(w, r, sessionID)
+}
+func (s *Server) CreateAssistantMessage(w http.ResponseWriter, r *http.Request, sessionID openapi.AssistantSessionIdParam, _ openapi.CreateAssistantMessageParams) {
+	s.assistantHandler.CreateMessage(w, r, sessionID)
+}
+func (s *Server) ConfirmAssistantAction(w http.ResponseWriter, r *http.Request, sessionID openapi.AssistantSessionIdParam, _ openapi.ConfirmAssistantActionParams) {
+	s.assistantHandler.Confirm(w, r, sessionID)
+}
+func (s *Server) CreateAssistantFeedback(w http.ResponseWriter, r *http.Request, sessionID openapi.AssistantSessionIdParam, _ openapi.CreateAssistantFeedbackParams) {
+	s.assistantHandler.Feedback(w, r, sessionID)
+}
+
 func main() {
 	// 1. Load config
 	cfg, err := config.Load()
@@ -196,13 +226,26 @@ func main() {
 	safetyEngine := safety.NewEngine(db.Pool)
 	safetyHandler := safety.NewHandler(safetyEngine)
 
+	assistantStore := assistantsession.NewRedisStore(cfg.RedisAddr, cfg.RedisPass)
+	assistantSessions := assistantsession.NewService(assistantStore, assistantsession.DefaultTTL)
+	var translationProvider fptai.TranslationProvider = fptai.NewUnavailableTranslation("translation provider is not configured")
+	if cfg.FptApiKey != "" && cfg.FptTextModel != "" {
+		client := fptai.NewClient(cfg.FptBaseURL, cfg.FptApiKey, 12*time.Second)
+		translationProvider = fptai.NewRealTranslation(client, cfg.FptTextModel)
+	}
+	retrievalService := retrieval.NewService(placesService, postsService)
+	toolRegistry := tools.NewRegistry(tools.NewPriceTool(priceEngine), tools.NewSafetyTool(safetyEngine), tools.NewTranslationTool(translationProvider), tools.NewRetrievalTool(retrievalService))
+	assistantOrchestrator := intelligenceorchestrator.New(assistantSessions, intent.NewRouter(), toolRegistry, retrievalService, evidence.NewAssembler(), response.NewComposer())
+	assistantHandler := intelligence.NewHandler(assistantSessions, assistantOrchestrator, feedback.NewRepository(db.Pool))
+
 	// 5. Instantiate server
 	apiServer := &Server{
-		db:            db,
-		placesHandler: placesHandler,
-		postsHandler:  postsHandler,
-		priceHandler:  priceHandler,
-		safetyHandler: safetyHandler,
+		db:               db,
+		placesHandler:    placesHandler,
+		postsHandler:     postsHandler,
+		priceHandler:     priceHandler,
+		safetyHandler:    safetyHandler,
+		assistantHandler: assistantHandler,
 	}
 
 	// 6. Generate oapi router handler

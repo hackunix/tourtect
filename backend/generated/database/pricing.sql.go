@@ -116,17 +116,21 @@ FROM price_snapshots
 WHERE vertical = $1
     AND unit = $2
     AND currency = $3
-    AND effective_from <= $4
-    AND (effective_to IS NULL OR effective_to > $4)
+    AND service_segment = $4
+    AND venue_type = $5
+    AND effective_from <= $6
+    AND (effective_to IS NULL OR effective_to > $6)
 ORDER BY sample_size DESC
 LIMIT 1
 `
 
 type GetPriceSnapshotFallbackRegionParams struct {
-	Vertical   string    `json:"vertical"`
-	Unit       string    `json:"unit"`
-	Currency   string    `json:"currency"`
-	ObservedAt time.Time `json:"observed_at"`
+	Vertical       string    `json:"vertical"`
+	Unit           string    `json:"unit"`
+	Currency       string    `json:"currency"`
+	ServiceSegment string    `json:"service_segment"`
+	VenueType      string    `json:"venue_type"`
+	ObservedAt     time.Time `json:"observed_at"`
 }
 
 func (q *Queries) GetPriceSnapshotFallbackRegion(ctx context.Context, arg GetPriceSnapshotFallbackRegionParams) (PriceSnapshot, error) {
@@ -134,6 +138,8 @@ func (q *Queries) GetPriceSnapshotFallbackRegion(ctx context.Context, arg GetPri
 		arg.Vertical,
 		arg.Unit,
 		arg.Currency,
+		arg.ServiceSegment,
+		arg.VenueType,
 		arg.ObservedAt,
 	)
 	var i PriceSnapshot

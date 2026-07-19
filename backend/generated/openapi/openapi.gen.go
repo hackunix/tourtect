@@ -17,22 +17,391 @@ import (
 
 // Defines values for AlertLevel.
 const (
-	Elevated         AlertLevel = "elevated"
-	HighRisk         AlertLevel = "high_risk"
-	InsufficientData AlertLevel = "insufficient_data"
-	Typical          AlertLevel = "typical"
+	AlertLevelElevated         AlertLevel = "elevated"
+	AlertLevelHighRisk         AlertLevel = "high_risk"
+	AlertLevelInsufficientData AlertLevel = "insufficient_data"
+	AlertLevelTypical          AlertLevel = "typical"
 )
 
 // Valid indicates whether the value is a known member of the AlertLevel enum.
 func (e AlertLevel) Valid() bool {
 	switch e {
-	case Elevated:
+	case AlertLevelElevated:
 		return true
-	case HighRisk:
+	case AlertLevelHighRisk:
 		return true
-	case InsufficientData:
+	case AlertLevelInsufficientData:
 		return true
-	case Typical:
+	case AlertLevelTypical:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantConfirmationAction.
+const (
+	AssistantConfirmationActionContactTrustedPerson  AssistantConfirmationAction = "contact_trusted_person"
+	AssistantConfirmationActionContributeObservation AssistantConfirmationAction = "contribute_observation"
+	AssistantConfirmationActionCreateReportDraft     AssistantConfirmationAction = "create_report_draft"
+	AssistantConfirmationActionOpenDialer            AssistantConfirmationAction = "open_dialer"
+	AssistantConfirmationActionPublishReport         AssistantConfirmationAction = "publish_report"
+	AssistantConfirmationActionSaveTranscript        AssistantConfirmationAction = "save_transcript"
+	AssistantConfirmationActionShareLocation         AssistantConfirmationAction = "share_location"
+	AssistantConfirmationActionUploadEvidence        AssistantConfirmationAction = "upload_evidence"
+)
+
+// Valid indicates whether the value is a known member of the AssistantConfirmationAction enum.
+func (e AssistantConfirmationAction) Valid() bool {
+	switch e {
+	case AssistantConfirmationActionContactTrustedPerson:
+		return true
+	case AssistantConfirmationActionContributeObservation:
+		return true
+	case AssistantConfirmationActionCreateReportDraft:
+		return true
+	case AssistantConfirmationActionOpenDialer:
+		return true
+	case AssistantConfirmationActionPublishReport:
+		return true
+	case AssistantConfirmationActionSaveTranscript:
+		return true
+	case AssistantConfirmationActionShareLocation:
+		return true
+	case AssistantConfirmationActionUploadEvidence:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantConfirmationRequestDecision.
+const (
+	AssistantConfirmationRequestDecisionConfirmed AssistantConfirmationRequestDecision = "confirmed"
+	AssistantConfirmationRequestDecisionRejected  AssistantConfirmationRequestDecision = "rejected"
+)
+
+// Valid indicates whether the value is a known member of the AssistantConfirmationRequestDecision enum.
+func (e AssistantConfirmationRequestDecision) Valid() bool {
+	switch e {
+	case AssistantConfirmationRequestDecisionConfirmed:
+		return true
+	case AssistantConfirmationRequestDecisionRejected:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantConfirmationResultStatus.
+const (
+	AssistantConfirmationResultStatusConfirmed AssistantConfirmationResultStatus = "confirmed"
+	AssistantConfirmationResultStatusRejected  AssistantConfirmationResultStatus = "rejected"
+)
+
+// Valid indicates whether the value is a known member of the AssistantConfirmationResultStatus enum.
+func (e AssistantConfirmationResultStatus) Valid() bool {
+	switch e {
+	case AssistantConfirmationResultStatusConfirmed:
+		return true
+	case AssistantConfirmationResultStatusRejected:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantEvidenceEvidenceLevel.
+const (
+	Community        AssistantEvidenceEvidenceLevel = "community"
+	Official         AssistantEvidenceEvidenceLevel = "official"
+	SessionConfirmed AssistantEvidenceEvidenceLevel = "session_confirmed"
+	Verified         AssistantEvidenceEvidenceLevel = "verified"
+)
+
+// Valid indicates whether the value is a known member of the AssistantEvidenceEvidenceLevel enum.
+func (e AssistantEvidenceEvidenceLevel) Valid() bool {
+	switch e {
+	case Community:
+		return true
+	case Official:
+		return true
+	case SessionConfirmed:
+		return true
+	case Verified:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantEvidenceFreshness.
+const (
+	AssistantEvidenceFreshnessAging   AssistantEvidenceFreshness = "aging"
+	AssistantEvidenceFreshnessFresh   AssistantEvidenceFreshness = "fresh"
+	AssistantEvidenceFreshnessStale   AssistantEvidenceFreshness = "stale"
+	AssistantEvidenceFreshnessUnknown AssistantEvidenceFreshness = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the AssistantEvidenceFreshness enum.
+func (e AssistantEvidenceFreshness) Valid() bool {
+	switch e {
+	case AssistantEvidenceFreshnessAging:
+		return true
+	case AssistantEvidenceFreshnessFresh:
+		return true
+	case AssistantEvidenceFreshnessStale:
+		return true
+	case AssistantEvidenceFreshnessUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantEvidenceSourceType.
+const (
+	CommunityPost            AssistantEvidenceSourceType = "community_post"
+	OfficialSource           AssistantEvidenceSourceType = "official_source"
+	PlaceRecord              AssistantEvidenceSourceType = "place_record"
+	PriceSnapshot            AssistantEvidenceSourceType = "price_snapshot"
+	SafetyDirectory          AssistantEvidenceSourceType = "safety_directory"
+	ScamPattern              AssistantEvidenceSourceType = "scam_pattern"
+	SessionFact              AssistantEvidenceSourceType = "session_fact"
+	VerifiedPriceObservation AssistantEvidenceSourceType = "verified_price_observation"
+)
+
+// Valid indicates whether the value is a known member of the AssistantEvidenceSourceType enum.
+func (e AssistantEvidenceSourceType) Valid() bool {
+	switch e {
+	case CommunityPost:
+		return true
+	case OfficialSource:
+		return true
+	case PlaceRecord:
+		return true
+	case PriceSnapshot:
+		return true
+	case SafetyDirectory:
+		return true
+	case ScamPattern:
+		return true
+	case SessionFact:
+		return true
+	case VerifiedPriceObservation:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantFeedbackReceiptStatus.
+const (
+	Quarantined AssistantFeedbackReceiptStatus = "quarantined"
+)
+
+// Valid indicates whether the value is a known member of the AssistantFeedbackReceiptStatus enum.
+func (e AssistantFeedbackReceiptStatus) Valid() bool {
+	switch e {
+	case Quarantined:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantFeedbackRequestFeedbackType.
+const (
+	ConfirmExtraction             AssistantFeedbackRequestFeedbackType = "confirm_extraction"
+	ContributeRedactedObservation AssistantFeedbackRequestFeedbackType = "contribute_redacted_observation"
+	Correction                    AssistantFeedbackRequestFeedbackType = "correction"
+	FalsePositive                 AssistantFeedbackRequestFeedbackType = "false_positive"
+	Helpful                       AssistantFeedbackRequestFeedbackType = "helpful"
+	NotHelpful                    AssistantFeedbackRequestFeedbackType = "not_helpful"
+	TranslationIncorrect          AssistantFeedbackRequestFeedbackType = "translation_incorrect"
+)
+
+// Valid indicates whether the value is a known member of the AssistantFeedbackRequestFeedbackType enum.
+func (e AssistantFeedbackRequestFeedbackType) Valid() bool {
+	switch e {
+	case ConfirmExtraction:
+		return true
+	case ContributeRedactedObservation:
+		return true
+	case Correction:
+		return true
+	case FalsePositive:
+		return true
+	case Helpful:
+		return true
+	case NotHelpful:
+		return true
+	case TranslationIncorrect:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantInputType.
+const (
+	AssistantInputTypeImageCapture             AssistantInputType = "image_capture"
+	AssistantInputTypeStructuredPriceCandidate AssistantInputType = "structured_price_candidate"
+	AssistantInputTypeStructuredSafetyFacts    AssistantInputType = "structured_safety_facts"
+	AssistantInputTypeText                     AssistantInputType = "text"
+	AssistantInputTypeVoiceTranscript          AssistantInputType = "voice_transcript"
+)
+
+// Valid indicates whether the value is a known member of the AssistantInputType enum.
+func (e AssistantInputType) Valid() bool {
+	switch e {
+	case AssistantInputTypeImageCapture:
+		return true
+	case AssistantInputTypeStructuredPriceCandidate:
+		return true
+	case AssistantInputTypeStructuredSafetyFacts:
+		return true
+	case AssistantInputTypeText:
+		return true
+	case AssistantInputTypeVoiceTranscript:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantIntent.
+const (
+	AssistantIntentCommunitySearch       AssistantIntent = "community_search"
+	AssistantIntentCreateReportDraft     AssistantIntent = "create_report_draft"
+	AssistantIntentEmergencyHelp         AssistantIntent = "emergency_help"
+	AssistantIntentGeneralTravelQuestion AssistantIntent = "general_travel_question"
+	AssistantIntentLiveTranslation       AssistantIntent = "live_translation"
+	AssistantIntentMenuOrReceiptAnalysis AssistantIntent = "menu_or_receipt_analysis"
+	AssistantIntentPlaceDiscovery        AssistantIntent = "place_discovery"
+	AssistantIntentPlaceInformation      AssistantIntent = "place_information"
+	AssistantIntentPriceCheck            AssistantIntent = "price_check"
+	AssistantIntentPriceExplanation      AssistantIntent = "price_explanation"
+	AssistantIntentSafetyAssessment      AssistantIntent = "safety_assessment"
+	AssistantIntentScamPatternAssessment AssistantIntent = "scam_pattern_assessment"
+	AssistantIntentTranslation           AssistantIntent = "translation"
+	AssistantIntentUnknown               AssistantIntent = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the AssistantIntent enum.
+func (e AssistantIntent) Valid() bool {
+	switch e {
+	case AssistantIntentCommunitySearch:
+		return true
+	case AssistantIntentCreateReportDraft:
+		return true
+	case AssistantIntentEmergencyHelp:
+		return true
+	case AssistantIntentGeneralTravelQuestion:
+		return true
+	case AssistantIntentLiveTranslation:
+		return true
+	case AssistantIntentMenuOrReceiptAnalysis:
+		return true
+	case AssistantIntentPlaceDiscovery:
+		return true
+	case AssistantIntentPlaceInformation:
+		return true
+	case AssistantIntentPriceCheck:
+		return true
+	case AssistantIntentPriceExplanation:
+		return true
+	case AssistantIntentSafetyAssessment:
+		return true
+	case AssistantIntentScamPatternAssessment:
+		return true
+	case AssistantIntentTranslation:
+		return true
+	case AssistantIntentUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantSafetyState.
+const (
+	AssistantSafetyStateCritical     AssistantSafetyState = "critical"
+	AssistantSafetyStateInformation  AssistantSafetyState = "information"
+	AssistantSafetyStateNonEmergency AssistantSafetyState = "non_emergency"
+	AssistantSafetyStateUnknown      AssistantSafetyState = "unknown"
+	AssistantSafetyStateUrgent       AssistantSafetyState = "urgent"
+)
+
+// Valid indicates whether the value is a known member of the AssistantSafetyState enum.
+func (e AssistantSafetyState) Valid() bool {
+	switch e {
+	case AssistantSafetyStateCritical:
+		return true
+	case AssistantSafetyStateInformation:
+		return true
+	case AssistantSafetyStateNonEmergency:
+		return true
+	case AssistantSafetyStateUnknown:
+		return true
+	case AssistantSafetyStateUrgent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantSuggestedActionActionType.
+const (
+	Clarify                AssistantSuggestedActionActionType = "clarify"
+	Confirmation           AssistantSuggestedActionActionType = "confirmation"
+	DeepLink               AssistantSuggestedActionActionType = "deep_link"
+	ManualPriceCheck       AssistantSuggestedActionActionType = "manual_price_check"
+	ManualSafetyAssessment AssistantSuggestedActionActionType = "manual_safety_assessment"
+	OfflineDirectory       AssistantSuggestedActionActionType = "offline_directory"
+	SavePrivateDraft       AssistantSuggestedActionActionType = "save_private_draft"
+)
+
+// Valid indicates whether the value is a known member of the AssistantSuggestedActionActionType enum.
+func (e AssistantSuggestedActionActionType) Valid() bool {
+	switch e {
+	case Clarify:
+		return true
+	case Confirmation:
+		return true
+	case DeepLink:
+		return true
+	case ManualPriceCheck:
+		return true
+	case ManualSafetyAssessment:
+		return true
+	case OfflineDirectory:
+		return true
+	case SavePrivateDraft:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssistantToolResultStatus.
+const (
+	AssistantToolResultStatusDegraded         AssistantToolResultStatus = "degraded"
+	AssistantToolResultStatusFailed           AssistantToolResultStatus = "failed"
+	AssistantToolResultStatusInsufficientData AssistantToolResultStatus = "insufficient_data"
+	AssistantToolResultStatusSucceeded        AssistantToolResultStatus = "succeeded"
+)
+
+// Valid indicates whether the value is a known member of the AssistantToolResultStatus enum.
+func (e AssistantToolResultStatus) Valid() bool {
+	switch e {
+	case AssistantToolResultStatusDegraded:
+		return true
+	case AssistantToolResultStatusFailed:
+		return true
+	case AssistantToolResultStatusInsufficientData:
+		return true
+	case AssistantToolResultStatusSucceeded:
 		return true
 	default:
 		return false
@@ -63,6 +432,30 @@ func (e CommercialDisclosure) Valid() bool {
 	case CommercialDisclosureNone:
 		return true
 	case CommercialDisclosureSponsored:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CreateAssistantSessionRequestInteractionMode.
+const (
+	CreateAssistantSessionRequestInteractionModeLens  CreateAssistantSessionRequestInteractionMode = "lens"
+	CreateAssistantSessionRequestInteractionModeMixed CreateAssistantSessionRequestInteractionMode = "mixed"
+	CreateAssistantSessionRequestInteractionModeText  CreateAssistantSessionRequestInteractionMode = "text"
+	CreateAssistantSessionRequestInteractionModeVoice CreateAssistantSessionRequestInteractionMode = "voice"
+)
+
+// Valid indicates whether the value is a known member of the CreateAssistantSessionRequestInteractionMode enum.
+func (e CreateAssistantSessionRequestInteractionMode) Valid() bool {
+	switch e {
+	case CreateAssistantSessionRequestInteractionModeLens:
+		return true
+	case CreateAssistantSessionRequestInteractionModeMixed:
+		return true
+	case CreateAssistantSessionRequestInteractionModeText:
+		return true
+	case CreateAssistantSessionRequestInteractionModeVoice:
 		return true
 	default:
 		return false
@@ -140,19 +533,19 @@ func (e GeoFallbackLevel) Valid() bool {
 
 // Defines values for HealthStatusStatus.
 const (
-	Degraded    HealthStatusStatus = "degraded"
-	Ok          HealthStatusStatus = "ok"
-	Unavailable HealthStatusStatus = "unavailable"
+	HealthStatusStatusDegraded    HealthStatusStatus = "degraded"
+	HealthStatusStatusOk          HealthStatusStatus = "ok"
+	HealthStatusStatusUnavailable HealthStatusStatus = "unavailable"
 )
 
 // Valid indicates whether the value is a known member of the HealthStatusStatus enum.
 func (e HealthStatusStatus) Valid() bool {
 	switch e {
-	case Degraded:
+	case HealthStatusStatusDegraded:
 		return true
-	case Ok:
+	case HealthStatusStatusOk:
 		return true
-	case Unavailable:
+	case HealthStatusStatusUnavailable:
 		return true
 	default:
 		return false
@@ -254,22 +647,22 @@ func (e PostType) Valid() bool {
 
 // Defines values for SafetyUrgency.
 const (
-	Critical     SafetyUrgency = "critical"
-	Information  SafetyUrgency = "information"
-	NonEmergency SafetyUrgency = "non_emergency"
-	Urgent       SafetyUrgency = "urgent"
+	SafetyUrgencyCritical     SafetyUrgency = "critical"
+	SafetyUrgencyInformation  SafetyUrgency = "information"
+	SafetyUrgencyNonEmergency SafetyUrgency = "non_emergency"
+	SafetyUrgencyUrgent       SafetyUrgency = "urgent"
 )
 
 // Valid indicates whether the value is a known member of the SafetyUrgency enum.
 func (e SafetyUrgency) Valid() bool {
 	switch e {
-	case Critical:
+	case SafetyUrgencyCritical:
 		return true
-	case Information:
+	case SafetyUrgencyInformation:
 		return true
-	case NonEmergency:
+	case SafetyUrgencyNonEmergency:
 		return true
-	case Urgent:
+	case SafetyUrgencyUrgent:
 		return true
 	default:
 		return false
@@ -486,6 +879,180 @@ func (e SearchCommunityParamsTab) Valid() bool {
 // AlertLevel defines model for AlertLevel.
 type AlertLevel string
 
+// AssistantConfirmation defines model for AssistantConfirmation.
+type AssistantConfirmation struct {
+	Action         AssistantConfirmationAction `json:"action"`
+	ConfirmationId openapi_types.UUID          `json:"confirmation_id"`
+	Description    string                      `json:"description"`
+	ExpiresAt      time.Time                   `json:"expires_at"`
+	Title          string                      `json:"title"`
+}
+
+// AssistantConfirmationAction defines model for AssistantConfirmation.Action.
+type AssistantConfirmationAction string
+
+// AssistantConfirmationRequest defines model for AssistantConfirmationRequest.
+type AssistantConfirmationRequest struct {
+	ConfirmationId openapi_types.UUID                   `json:"confirmation_id"`
+	Decision       AssistantConfirmationRequestDecision `json:"decision"`
+}
+
+// AssistantConfirmationRequestDecision defines model for AssistantConfirmationRequest.Decision.
+type AssistantConfirmationRequestDecision string
+
+// AssistantConfirmationResult defines model for AssistantConfirmationResult.
+type AssistantConfirmationResult struct {
+	Action         string                            `json:"action"`
+	ConfirmationId openapi_types.UUID                `json:"confirmation_id"`
+	ExecutedAt     time.Time                         `json:"executed_at"`
+	ResultId       *openapi_types.UUID               `json:"result_id,omitempty"`
+	Status         AssistantConfirmationResultStatus `json:"status"`
+
+	// Target Server-verified client target, returned only after confirmation
+	Target *string `json:"target,omitempty"`
+}
+
+// AssistantConfirmationResultStatus defines model for AssistantConfirmationResult.Status.
+type AssistantConfirmationResultStatus string
+
+// AssistantEvidence defines model for AssistantEvidence.
+type AssistantEvidence struct {
+	EvidenceId    openapi_types.UUID             `json:"evidence_id"`
+	EvidenceLevel AssistantEvidenceEvidenceLevel `json:"evidence_level"`
+	Freshness     AssistantEvidenceFreshness     `json:"freshness"`
+	ObservedAt    *time.Time                     `json:"observed_at,omitempty"`
+	SourceId      string                         `json:"source_id"`
+	SourceType    AssistantEvidenceSourceType    `json:"source_type"`
+	SourceUrl     *string                        `json:"source_url,omitempty"`
+	Summary       string                         `json:"summary"`
+	Title         string                         `json:"title"`
+}
+
+// AssistantEvidenceEvidenceLevel defines model for AssistantEvidence.EvidenceLevel.
+type AssistantEvidenceEvidenceLevel string
+
+// AssistantEvidenceFreshness defines model for AssistantEvidence.Freshness.
+type AssistantEvidenceFreshness string
+
+// AssistantEvidenceSourceType defines model for AssistantEvidence.SourceType.
+type AssistantEvidenceSourceType string
+
+// AssistantFeedbackReceipt defines model for AssistantFeedbackReceipt.
+type AssistantFeedbackReceipt struct {
+	CreatedAt  time.Time                      `json:"created_at"`
+	FeedbackId openapi_types.UUID             `json:"feedback_id"`
+	Status     AssistantFeedbackReceiptStatus `json:"status"`
+}
+
+// AssistantFeedbackReceiptStatus defines model for AssistantFeedbackReceipt.Status.
+type AssistantFeedbackReceiptStatus string
+
+// AssistantFeedbackRequest defines model for AssistantFeedbackRequest.
+type AssistantFeedbackRequest struct {
+	AssistantMessageId  openapi_types.UUID                   `json:"assistant_message_id"`
+	ConsentToContribute *bool                                `json:"consent_to_contribute,omitempty"`
+	CorrectedValue      *string                              `json:"corrected_value,omitempty"`
+	FeedbackType        AssistantFeedbackRequestFeedbackType `json:"feedback_type"`
+	Field               *string                              `json:"field,omitempty"`
+	OriginalValue       *string                              `json:"original_value,omitempty"`
+}
+
+// AssistantFeedbackRequestFeedbackType defines model for AssistantFeedbackRequest.FeedbackType.
+type AssistantFeedbackRequestFeedbackType string
+
+// AssistantInputType defines model for AssistantInputType.
+type AssistantInputType string
+
+// AssistantIntent defines model for AssistantIntent.
+type AssistantIntent string
+
+// AssistantMessageRequest defines model for AssistantMessageRequest.
+type AssistantMessageRequest struct {
+	CaptureId      *openapi_types.UUID     `json:"capture_id,omitempty"`
+	InputType      AssistantInputType      `json:"input_type"`
+	Locale         *string                 `json:"locale,omitempty"`
+	MessageId      openapi_types.UUID      `json:"message_id"`
+	PlaceId        *openapi_types.UUID     `json:"place_id,omitempty"`
+	StructuredData *map[string]interface{} `json:"structured_data,omitempty"`
+	Text           *string                 `json:"text,omitempty"`
+	UserConfirmed  *bool                   `json:"user_confirmed,omitempty"`
+}
+
+// AssistantResponse defines model for AssistantResponse.
+type AssistantResponse struct {
+	AssistantMessageId    openapi_types.UUID         `json:"assistant_message_id"`
+	Confidence            float64                    `json:"confidence"`
+	DatasetVersion        *string                    `json:"dataset_version,omitempty"`
+	Evidence              []AssistantEvidence        `json:"evidence"`
+	FactorsConsidered     []string                   `json:"factors_considered"`
+	FallbackUsed          bool                       `json:"fallback_used"`
+	Freshness             *string                    `json:"freshness,omitempty"`
+	Intent                AssistantIntent            `json:"intent"`
+	Message               string                     `json:"message"`
+	MissingInformation    []string                   `json:"missing_information"`
+	RequestedConfirmation *AssistantConfirmation     `json:"requested_confirmation,omitempty"`
+	SafetyState           AssistantSafetyState       `json:"safety_state"`
+	SuggestedActions      []AssistantSuggestedAction `json:"suggested_actions"`
+	ToolResults           []AssistantToolResult      `json:"tool_results"`
+	TraceId               string                     `json:"trace_id"`
+}
+
+// AssistantSafetyState defines model for AssistantSafetyState.
+type AssistantSafetyState string
+
+// AssistantSession defines model for AssistantSession.
+type AssistantSession struct {
+	Context         AssistantSessionContext `json:"context"`
+	CreatedAt       time.Time               `json:"created_at"`
+	ExpiresAt       time.Time               `json:"expires_at"`
+	RecentResponses *[]AssistantResponse    `json:"recent_responses,omitempty"`
+	SessionId       openapi_types.UUID      `json:"session_id"`
+	UpdatedAt       time.Time               `json:"updated_at"`
+	Version         int                     `json:"version"`
+}
+
+// AssistantSessionContext defines model for AssistantSessionContext.
+type AssistantSessionContext struct {
+	ActiveCaptureIds  *[]openapi_types.UUID `json:"active_capture_ids,omitempty"`
+	ApproximateRegion *string               `json:"approximate_region,omitempty"`
+	ConsentState      struct {
+		Contribution bool `json:"contribution"`
+		Processing   bool `json:"processing"`
+		Publish      bool `json:"publish"`
+	} `json:"consent_state"`
+	CurrentSafetyState *AssistantSafetyState `json:"current_safety_state,omitempty"`
+	InteractionMode    string                `json:"interaction_mode"`
+	Locale             string                `json:"locale"`
+	PlaceId            *openapi_types.UUID   `json:"place_id,omitempty"`
+	TargetLocale       *string               `json:"target_locale,omitempty"`
+	UserConfirmedFacts *[]string             `json:"user_confirmed_facts,omitempty"`
+}
+
+// AssistantSuggestedAction defines model for AssistantSuggestedAction.
+type AssistantSuggestedAction struct {
+	ActionId             string                             `json:"action_id"`
+	ActionType           AssistantSuggestedActionActionType `json:"action_type"`
+	Label                string                             `json:"label"`
+	RequiresConfirmation bool                               `json:"requires_confirmation"`
+	Target               *string                            `json:"target,omitempty"`
+}
+
+// AssistantSuggestedActionActionType defines model for AssistantSuggestedAction.ActionType.
+type AssistantSuggestedActionActionType string
+
+// AssistantToolResult defines model for AssistantToolResult.
+type AssistantToolResult struct {
+	DurationMs    int64                     `json:"duration_ms"`
+	ErrorCategory *string                   `json:"error_category,omitempty"`
+	Output        map[string]interface{}    `json:"output"`
+	Status        AssistantToolResultStatus `json:"status"`
+	ToolName      string                    `json:"tool_name"`
+	ToolResultId  openapi_types.UUID        `json:"tool_result_id"`
+}
+
+// AssistantToolResultStatus defines model for AssistantToolResult.Status.
+type AssistantToolResultStatus string
+
 // AuthorSummary defines model for AuthorSummary.
 type AuthorSummary struct {
 	DisplayName string             `json:"display_name"`
@@ -518,6 +1085,19 @@ type Coordinates struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 }
+
+// CreateAssistantSessionRequest defines model for CreateAssistantSessionRequest.
+type CreateAssistantSessionRequest struct {
+	ApproximateRegion *string                                       `json:"approximate_region,omitempty"`
+	InteractionMode   *CreateAssistantSessionRequestInteractionMode `json:"interaction_mode,omitempty"`
+	Locale            string                                        `json:"locale"`
+	PlaceId           *openapi_types.UUID                           `json:"place_id,omitempty"`
+	ProcessingConsent *bool                                         `json:"processing_consent,omitempty"`
+	TargetLocale      *string                                       `json:"target_locale,omitempty"`
+}
+
+// CreateAssistantSessionRequestInteractionMode defines model for CreateAssistantSessionRequest.InteractionMode.
+type CreateAssistantSessionRequestInteractionMode string
 
 // CreateCommentRequest defines model for CreateCommentRequest.
 type CreateCommentRequest struct {
@@ -792,9 +1372,12 @@ type SafetyAssessmentRequest struct {
 	ConfinementIndicators *[]string `json:"confinement_indicators,omitempty"`
 	InjuryIndicators      *[]string `json:"injury_indicators,omitempty"`
 	ObservedFacts         []string  `json:"observed_facts"`
-	ThreatIndicators      *[]string `json:"threat_indicators,omitempty"`
-	UserConfirmedFacts    *[]string `json:"user_confirmed_facts,omitempty"`
-	UserReportedState     *string   `json:"user_reported_state,omitempty"`
+
+	// RegionId Explicit region for versioned safety-directory lookup; omission disables regional hotline lookup.
+	RegionId           *string   `json:"region_id,omitempty"`
+	ThreatIndicators   *[]string `json:"threat_indicators,omitempty"`
+	UserConfirmedFacts *[]string `json:"user_confirmed_facts,omitempty"`
+	UserReportedState  *string   `json:"user_reported_state,omitempty"`
 }
 
 // SafetyUrgency defines model for SafetyUrgency.
@@ -819,6 +1402,9 @@ type VenueType string
 
 // Vertical defines model for Vertical.
 type Vertical string
+
+// AssistantSessionIdParam defines model for AssistantSessionIdParam.
+type AssistantSessionIdParam = openapi_types.UUID
 
 // CursorParam defines model for CursorParam.
 type CursorParam = string
@@ -849,6 +1435,42 @@ type NotFound = ProblemDetail
 
 // UnprocessableEntity defines model for UnprocessableEntity.
 type UnprocessableEntity = ProblemDetail
+
+// CreateAssistantSessionParams defines parameters for CreateAssistantSession.
+type CreateAssistantSessionParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// DeleteAssistantSessionParams defines parameters for DeleteAssistantSession.
+type DeleteAssistantSessionParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// GetAssistantSessionParams defines parameters for GetAssistantSession.
+type GetAssistantSessionParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// ConfirmAssistantActionParams defines parameters for ConfirmAssistantAction.
+type ConfirmAssistantActionParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// CreateAssistantFeedbackParams defines parameters for CreateAssistantFeedback.
+type CreateAssistantFeedbackParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
+
+// CreateAssistantMessageParams defines parameters for CreateAssistantMessage.
+type CreateAssistantMessageParams struct {
+	// XRequestID Client-provided request identifier for tracing
+	XRequestID *RequestIdParam `json:"X-Request-ID,omitempty"`
+}
 
 // UnblockPrincipalParams defines parameters for UnblockPrincipal.
 type UnblockPrincipalParams struct {
@@ -1072,6 +1694,18 @@ type SearchCommunityParams struct {
 // SearchCommunityParamsTab defines parameters for SearchCommunity.
 type SearchCommunityParamsTab string
 
+// CreateAssistantSessionJSONRequestBody defines body for CreateAssistantSession for application/json ContentType.
+type CreateAssistantSessionJSONRequestBody = CreateAssistantSessionRequest
+
+// ConfirmAssistantActionJSONRequestBody defines body for ConfirmAssistantAction for application/json ContentType.
+type ConfirmAssistantActionJSONRequestBody = AssistantConfirmationRequest
+
+// CreateAssistantFeedbackJSONRequestBody defines body for CreateAssistantFeedback for application/json ContentType.
+type CreateAssistantFeedbackJSONRequestBody = AssistantFeedbackRequest
+
+// CreateAssistantMessageJSONRequestBody defines body for CreateAssistantMessage for application/json ContentType.
+type CreateAssistantMessageJSONRequestBody = AssistantMessageRequest
+
 // DeleteFollowJSONRequestBody defines body for DeleteFollow for application/json ContentType.
 type DeleteFollowJSONRequestBody = FollowRequest
 
@@ -1104,6 +1738,24 @@ type ServerInterface interface {
 	// HealthReady Readiness probe
 	// (GET /health/ready)
 	HealthReady(w http.ResponseWriter, r *http.Request)
+	// CreateAssistantSession Create an assistance session
+	// (POST /v1/assistant/sessions)
+	CreateAssistantSession(w http.ResponseWriter, r *http.Request, params CreateAssistantSessionParams)
+	// DeleteAssistantSession End and remove an assistance session
+	// (DELETE /v1/assistant/sessions/{sessionId})
+	DeleteAssistantSession(w http.ResponseWriter, r *http.Request, sessionId AssistantSessionIdParam, params DeleteAssistantSessionParams)
+	// GetAssistantSession Resume an owned assistance session
+	// (GET /v1/assistant/sessions/{sessionId})
+	GetAssistantSession(w http.ResponseWriter, r *http.Request, sessionId AssistantSessionIdParam, params GetAssistantSessionParams)
+	// ConfirmAssistantAction Confirm or reject a server-issued consequential action
+	// (POST /v1/assistant/sessions/{sessionId}/confirmations)
+	ConfirmAssistantAction(w http.ResponseWriter, r *http.Request, sessionId AssistantSessionIdParam, params ConfirmAssistantActionParams)
+	// CreateAssistantFeedback Quarantine explicit assistant feedback or a user correction
+	// (POST /v1/assistant/sessions/{sessionId}/feedback)
+	CreateAssistantFeedback(w http.ResponseWriter, r *http.Request, sessionId AssistantSessionIdParam, params CreateAssistantFeedbackParams)
+	// CreateAssistantMessage Send a typed input through the Tourtect Intelligence Layer
+	// (POST /v1/assistant/sessions/{sessionId}/messages)
+	CreateAssistantMessage(w http.ResponseWriter, r *http.Request, sessionId AssistantSessionIdParam, params CreateAssistantMessageParams)
 
 	// (DELETE /v1/blocks/{principalId})
 	UnblockPrincipal(w http.ResponseWriter, r *http.Request, principalId openapi_types.UUID, params UnblockPrincipalParams)
@@ -1203,6 +1855,297 @@ func (siw *ServerInterfaceWrapper) HealthReady(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.HealthReady(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateAssistantSession operation middleware
+func (siw *ServerInterfaceWrapper) CreateAssistantSession(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateAssistantSessionParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateAssistantSession(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteAssistantSession operation middleware
+func (siw *ServerInterfaceWrapper) DeleteAssistantSession(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "sessionId" -------------
+	var sessionId AssistantSessionIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "sessionId", r.PathValue("sessionId"), &sessionId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sessionId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DeleteAssistantSessionParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteAssistantSession(w, r, sessionId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAssistantSession operation middleware
+func (siw *ServerInterfaceWrapper) GetAssistantSession(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "sessionId" -------------
+	var sessionId AssistantSessionIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "sessionId", r.PathValue("sessionId"), &sessionId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sessionId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAssistantSessionParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAssistantSession(w, r, sessionId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ConfirmAssistantAction operation middleware
+func (siw *ServerInterfaceWrapper) ConfirmAssistantAction(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "sessionId" -------------
+	var sessionId AssistantSessionIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "sessionId", r.PathValue("sessionId"), &sessionId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sessionId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ConfirmAssistantActionParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ConfirmAssistantAction(w, r, sessionId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateAssistantFeedback operation middleware
+func (siw *ServerInterfaceWrapper) CreateAssistantFeedback(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "sessionId" -------------
+	var sessionId AssistantSessionIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "sessionId", r.PathValue("sessionId"), &sessionId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sessionId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateAssistantFeedbackParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateAssistantFeedback(w, r, sessionId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateAssistantMessage operation middleware
+func (siw *ServerInterfaceWrapper) CreateAssistantMessage(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "sessionId" -------------
+	var sessionId AssistantSessionIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "sessionId", r.PathValue("sessionId"), &sessionId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sessionId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateAssistantMessageParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "X-Request-ID" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Request-ID")]; found {
+		var XRequestID RequestIdParam
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "X-Request-ID", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Request-ID", valueList[0], &XRequestID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: "uuid"})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "X-Request-ID", Err: err})
+			return
+		}
+
+		params.XRequestID = &XRequestID
+
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateAssistantMessage(w, r, sessionId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2698,6 +3641,12 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc(http.MethodPut+" "+options.BaseURL+"/v1/blocks/{principalId}", wrapper.BlockPrincipal)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/price-checks", wrapper.CreatePriceCheck)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/safety/assessments", wrapper.CreateSafetyAssessment)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/assistant/sessions", wrapper.CreateAssistantSession)
+	m.HandleFunc(http.MethodDelete+" "+options.BaseURL+"/v1/assistant/sessions/{sessionId}", wrapper.DeleteAssistantSession)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/v1/assistant/sessions/{sessionId}", wrapper.GetAssistantSession)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/assistant/sessions/{sessionId}/messages", wrapper.CreateAssistantMessage)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/assistant/sessions/{sessionId}/confirmations", wrapper.ConfirmAssistantAction)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/v1/assistant/sessions/{sessionId}/feedback", wrapper.CreateAssistantFeedback)
 
 	return m
 }

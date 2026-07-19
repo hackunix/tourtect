@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/tourtect/backend/adapters/fptai"
 )
 
@@ -25,8 +27,11 @@ type Session struct {
 	SessionID   string
 	State       SessionState
 	mu          sync.Mutex
+	eventMu     sync.Mutex
 	expectedSeq int
+	serverSeq   int
 	utteranceID string
+	traceID     string
 	audioBuffer []byte
 	maxDuration time.Duration
 	maxBufSize  int
@@ -57,7 +62,7 @@ func (s *Session) HandleEvent(ctx context.Context, env EventEnvelope, payloadDat
 	if env.Sequence != s.expectedSeq+1 {
 		s.State = StateError
 		err := fmt.Errorf("out-of-order sequence: expected %d, got %d", s.expectedSeq+1, env.Sequence)
-		s.emitError(err.Error())
+		s.emitError(err.Error(), firstNonEmpty(env.TraceID, s.traceID))
 		return err
 	}
 	s.expectedSeq = env.Sequence
@@ -69,18 +74,18 @@ func (s *Session) HandleEvent(ctx context.Context, env EventEnvelope, payloadDat
 		}
 		s.State = StateCapturing
 		s.utteranceID = env.UtteranceID
+		if s.utteranceID == "" {
+			s.utteranceID = uuid.NewString()
+		}
+		s.traceID = env.TraceID
+		if s.traceID == "" {
+			s.traceID = uuid.NewString()
+		}
 		s.audioBuffer = make([]byte, 0)
 		s.startTime = time.Now()
 
-		s.onEvent(EventEnvelope{
-			Version:   1,
-			Type:      TypeTranscriptPartial,
-			SessionID: s.SessionID,
-			Sequence:  s.expectedSeq + 1,
-			Timestamp: time.Now(),
-			Payload: map[string]interface{}{
-				"status": "listening",
-			},
+		s.emit(TypeTranscriptPartial, s.utteranceID, s.traceID, map[string]interface{}{
+			"status": "listening",
 		})
 
 	case TypeAudioChunk:
@@ -92,7 +97,7 @@ func (s *Session) HandleEvent(ctx context.Context, env EventEnvelope, payloadDat
 		if time.Since(s.startTime) > s.maxDuration {
 			s.State = StateError
 			err := errors.New("max utterance duration exceeded")
-			s.emitError(err.Error())
+			s.emitError(err.Error(), s.traceID)
 			return err
 		}
 
@@ -100,7 +105,7 @@ func (s *Session) HandleEvent(ctx context.Context, env EventEnvelope, payloadDat
 		if len(s.audioBuffer)+len(payloadData) > s.maxBufSize {
 			s.State = StateError
 			err := errors.New("max audio buffer limit exceeded")
-			s.emitError(err.Error())
+			s.emitError(err.Error(), s.traceID)
 			return err
 		}
 
@@ -112,20 +117,16 @@ func (s *Session) HandleEvent(ctx context.Context, env EventEnvelope, payloadDat
 		}
 		s.State = StateEnding
 
-		// Trigger ASR & Translation asynchronously
-		go s.processUtterance(ctx, s.utteranceID, s.audioBuffer)
+		// Copy the bounded buffer before processing so a subsequent utterance
+		// cannot mutate data still owned by the provider call.
+		audioData := append([]byte(nil), s.audioBuffer...)
+		go s.processUtterance(ctx, s.utteranceID, s.traceID, audioData)
 
 		s.State = StateReady
 
 	case TypeSessionEnded:
 		s.State = StateIdle
-		s.onEvent(EventEnvelope{
-			Version:   1,
-			Type:      TypeSessionEnded,
-			SessionID: s.SessionID,
-			Sequence:  s.expectedSeq + 1,
-			Timestamp: time.Now(),
-		})
+		s.emit(TypeSessionEnded, s.utteranceID, s.traceID, nil)
 
 	default:
 		slog.Warn("Unhandled event type", slog.String("type", env.Type))
@@ -134,34 +135,17 @@ func (s *Session) HandleEvent(ctx context.Context, env EventEnvelope, payloadDat
 	return nil
 }
 
-func (s *Session) processUtterance(ctx context.Context, utteranceID string, audioData []byte) {
+func (s *Session) processUtterance(ctx context.Context, utteranceID, traceID string, audioData []byte) {
 	// ASR Transcription
 	transcript, err := s.asrProvider.Transcribe(ctx, fptai.AudioInput{Data: audioData})
 	if err != nil {
 		slog.Error("ASR failure", slog.Any("error", err))
-		s.onEvent(EventEnvelope{
-			Version:     1,
-			Type:        TypeProviderDegraded,
-			SessionID:   s.SessionID,
-			UtteranceID: utteranceID,
-			Timestamp:   time.Now(),
-			Payload: map[string]interface{}{
-				"provider": "asr",
-				"error":    err.Error(),
-			},
-		})
+		s.emitProviderDegraded("asr", utteranceID, traceID)
 		return
 	}
 
-	s.onEvent(EventEnvelope{
-		Version:     1,
-		Type:        TypeTranscriptFinal,
-		SessionID:   s.SessionID,
-		UtteranceID: utteranceID,
-		Timestamp:   time.Now(),
-		Payload: map[string]interface{}{
-			"text": transcript.Text,
-		},
+	s.emit(TypeTranscriptFinal, utteranceID, traceID, map[string]interface{}{
+		"text": transcript.Text,
 	})
 
 	// Translation (translation must not wait for downstream price engine)
@@ -171,40 +155,42 @@ func (s *Session) processUtterance(ctx context.Context, utteranceID string, audi
 	})
 	if err != nil {
 		slog.Error("Translation failure", slog.Any("error", err))
-		s.onEvent(EventEnvelope{
-			Version:     1,
-			Type:        TypeProviderDegraded,
-			SessionID:   s.SessionID,
-			UtteranceID: utteranceID,
-			Timestamp:   time.Now(),
-			Payload: map[string]interface{}{
-				"provider": "translation",
-				"error":    err.Error(),
-			},
-		})
+		s.emitProviderDegraded("translation", utteranceID, traceID)
 		return
 	}
 
-	s.onEvent(EventEnvelope{
-		Version:     1,
-		Type:        TypeTranslationReady,
-		SessionID:   s.SessionID,
-		UtteranceID: utteranceID,
-		Timestamp:   time.Now(),
-		Payload: map[string]interface{}{
-			"translated_text": translation.Text,
-		},
+	s.emit(TypeTranslationReady, utteranceID, traceID, map[string]interface{}{
+		"translated_text": translation.Text,
 	})
 }
 
-func (s *Session) emitError(msg string) {
-	s.onEvent(EventEnvelope{
-		Version:   1,
-		Type:      TypeSessionError,
-		SessionID: s.SessionID,
-		Timestamp: time.Now(),
-		Payload: map[string]interface{}{
-			"error": msg,
-		},
+func (s *Session) emitError(msg, traceID string) {
+	s.emit(TypeSessionError, s.utteranceID, traceID, map[string]interface{}{
+		"error": msg,
 	})
+}
+
+func (s *Session) emitProviderDegraded(provider, utteranceID, traceID string) {
+	s.emit(TypeProviderDegraded, utteranceID, traceID, map[string]interface{}{
+		"provider":       provider,
+		"error_category": "provider_unavailable",
+		"message":        "AI processing is currently unavailable.",
+	})
+}
+
+func (s *Session) emit(eventType, utteranceID, traceID string, payload map[string]interface{}) {
+	s.onEvent(s.nextEvent(eventType, utteranceID, traceID, payload))
+}
+
+func (s *Session) nextEvent(eventType, utteranceID, traceID string, payload map[string]interface{}) EventEnvelope {
+	s.eventMu.Lock()
+	defer s.eventMu.Unlock()
+	s.serverSeq++
+	return newEventEnvelope(eventType, s.SessionID, utteranceID, traceID, s.serverSeq, payload)
+}
+
+func (s *Session) nextClientSequence() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.expectedSeq + 1
 }

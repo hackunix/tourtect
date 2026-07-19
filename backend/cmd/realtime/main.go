@@ -33,14 +33,17 @@ func main() {
 	var asrProvider fptai.ASRProvider
 	var transProvider fptai.TranslationProvider
 
-	if cfg.FptApiKey == "" {
-		slog.Warn("FPT API Key missing. Falling back to Fake AI providers.")
-		asrProvider = &fptai.FakeASR{}
-		transProvider = &fptai.FakeTranslation{}
+	// Speech transcription has no completed provider adapter yet. Expose an
+	// explicit degraded state instead of returning simulated transcript data.
+	asrProvider = fptai.NewUnavailableASR()
+	slog.Warn("Realtime ASR provider unavailable")
+
+	if cfg.FptApiKey == "" || cfg.FptTextModel == "" {
+		slog.Warn("Realtime translation provider unavailable")
+		transProvider = fptai.NewUnavailableTranslation()
 	} else {
 		fptClient := fptai.NewClient(cfg.FptBaseURL, cfg.FptApiKey, 30*time.Second)
-		asrProvider = fptai.NewRealASR(fptClient, "fpt-asr-v1")
-		transProvider = fptai.NewRealTranslation(fptClient, "fpt-translation-v1")
+		transProvider = fptai.NewRealTranslation(fptClient, cfg.FptTextModel)
 	}
 
 	// 4. Initialize WebSocket Upgrade handler
