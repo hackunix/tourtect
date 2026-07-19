@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/discovery-candidate.schema.json",
+  "title": "Discovery Candidate",
+  "type": "object",
+  "required": [
+    "candidate_id",
+    "url",
+    "discovery_source",
+    "discovered_at",
+    "policy_check_state",
+    "duplicate_check_state",
+    "scheduled_fetch_priority"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "candidate_id": { "type": "string" },
+    "url": { "type": "string", "format": "uri" },
+    "canonical_url": { "type": "string", "format": "uri" },
+    "discovery_source": { "type": "string" },
+    "query_pack_id": { "type": "string" },
+    "discovered_title": { "type": "string" },
+    "discovered_snippet": { "type": "string" },
+    "detected_locale": { "type": "string", "pattern": "^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$" },
+    "possible_record_types": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "possible_place_entities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "discovery_score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+    "policy_check_state": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+    "duplicate_check_state": { "type": "string", "enum": ["pending", "duplicate", "unique"] },
+    "scheduled_fetch_priority": { "type": "integer", "minimum": 0 },
+    "discovered_at": { "type": "string", "format": "date-time" },
+    "rejection_reason": { "type": "string" }
+  }
+}

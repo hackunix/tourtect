@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/deletion-event.schema.json",
+  "title": "Deletion Event",
+  "type": "object",
+  "required": [
+    "event_id",
+    "record_id",
+    "event_type",
+    "requested_at",
+    "status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "event_id": { "type": "string" },
+    "record_id": { "type": "string" },
+    "event_type": {
+      "type": "string",
+      "enum": ["takedown_request", "source_deleted", "legal_removal", "robots_policy_change", "manual_unpublish", "expiry"]
+    },
+    "requested_at": { "type": "string", "format": "date-time" },
+    "executed_at": { "type": "string", "format": "date-time" },
+    "status": { "type": "string", "enum": ["pending", "completed", "failed"] },
+    "reason": { "type": "string" },
+    "requestor_info": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "role": { "type": "string" },
+        "identity_provider": { "type": "string" }
+      }
+    },
+    "audit_hash": { "type": "string" }
+  }
+}

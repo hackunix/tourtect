@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "request_id": "req-insufficient-001",
+  "provider_response_id": "resp-insufficient-001",
+  "status": "insufficient_evidence",
+  "records": [],
+  "document_classification": {
+    "primary_topic": "celebrity_gossip",
+    "travel_relevance": 0.0
+  },
+  "unresolved_entities": [],
+  "warnings": [
+    "No travel-critical safety, alert, or pricing information could be found in this text."
+  ],
+  "model_usage": {
+    "prompt_tokens": 1200,
+    "completion_tokens": 75
+  },
+  "refusal": null
+}

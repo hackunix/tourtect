@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/common.schema.json",
+  "title": "Common Ingestion Definitions",
+  "type": "object",
+  "additionalProperties": false,
+  "$defs": {
+    "monetary_amount": {
+      "type": "object",
+      "required": ["minor_units", "currency", "scale"],
+      "additionalProperties": false,
+      "properties": {
+        "minor_units": {
+          "type": "string",
+          "pattern": "^[0-9]+$",
+          "description": "Decimal representation of money in minor units to avoid float issues."
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "ISO 4217 Currency code (e.g., USD, VND)."
+        },
+        "scale": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of implied decimal places (e.g., 2 for USD, 0 for VND)."
+        }
+      }
+    },
+    "coordinates": {
+      "type": "object",
+      "required": ["latitude", "longitude"],
+      "additionalProperties": false,
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "minimum": -90.0,
+          "maximum": 90.0
+        },
+        "longitude": {
+          "type": "number",
+          "minimum": -180.0,
+          "maximum": 180.0
+        }
+      }
+    },
+    "source_envelope": {
+      "type": "object",
+      "required": ["source_id", "source_type", "canonical_url"],
+      "additionalProperties": false,
+      "properties": {
+        "source_id": { "type": "string" },
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "official_api", "partner_api", "rss", "atom", "websub", "sitemap", 
+            "allowlisted_html", "user_submitted_url", "official_embed", 
+            "licensed_feed", "manual_import", "blocked"
+          ]
+        },
+        "canonical_url": { "type": "string", "format": "uri" },
+        "original_url": { "type": "string", "format": "uri" },
+        "publisher": { "type": "string" },
+        "author": { "type": "string" },
+        "published_at": { "type": "string", "format": "date-time" },
+        "source_updated_at": { "type": "string", "format": "date-time" },
+        "retrieved_at": { "type": "string", "format": "date-time" },
+        "locale": { "type": "string", "pattern": "^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$" },
+        "country_scope": { "type": "string", "pattern": "^[A-Z]{2}$" },
+        "region_scope": { "type": "string" }
+      }
+    },
+    "provenance_envelope": {
+      "type": "object",
+      "required": ["fetch_id", "content_hash", "source_content_hash"],
+      "additionalProperties": false,
+      "properties": {
+        "fetch_id": { "type": "string" },
+        "content_hash": { "type": "string", "description": "SHA-256 hash of parsed content payload." },
+        "source_content_hash": { "type": "string", "description": "SHA-256 hash of original fetched bytes." },
+        "parent_record_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "discovery_method": {
+          "type": "string",
+          "enum": ["seed", "crawl_sitemap", "rss_poll", "user_submission", "partner_push", "search_engine"]
+        },
+        "connector_id": { "type": "string" },
+        "query_pack_id": { "type": "string" },
+        "source_excerpt_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "extraction_envelope": {
+      "type": "object",
+      "required": ["provider", "model", "extracted_at"],
+      "additionalProperties": false,
+      "properties": {
+        "provider": { "type": "string" },
+        "model": { "type": "string" },
+        "model_version": { "type": "string" },
+        "prompt_version": { "type": "string" },
+        "extracted_at": { "type": "string", "format": "date-time" },
+        "input_hash": { "type": "string" },
+        "output_hash": { "type": "string" },
+        "tool_trace_id": { "type": "string" }
+      }
+    },
+    "quality_envelope": {
+      "type": "object",
+      "required": ["overall_confidence", "requires_human_review"],
+      "additionalProperties": false,
+      "properties": {
+        "overall_confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "field_confidences": {
+          "type": "object",
+          "additionalProperties": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+        },
+        "missing_fields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "ambiguous_fields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "warnings": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "requires_human_review": { "type": "boolean" },
+        "review_reasons": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "policy_envelope": {
+      "type": "object",
+      "required": ["rights_status", "allowed_uses", "retention_policy", "publication_allowed"],
+      "additionalProperties": false,
+      "properties": {
+        "rights_status": { "type": "string", "enum": ["public_domain", "fair_use_excerpt", "licensed", "proprietary", "unknown"] },
+        "robots_status": { "type": "string", "enum": ["allowed", "disallowed", "ignored", "no_directives"] },
+        "access_mode": { "type": "string" },
+        "allowed_uses": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["display", "aggregate", "internal_analysis", "ai_extraction", "model_training"] }
+        },
+        "retention_policy": {
+          "type": "object",
+          "required": ["max_ttl_seconds"],
+          "additionalProperties": false,
+          "properties": {
+            "max_ttl_seconds": { "type": "integer", "minimum": -1 },
+            "reason": { "type": "string" }
+          }
+        },
+        "publication_allowed": { "type": "boolean" },
+        "training_allowed": { "type": "boolean" },
+        "contains_personal_data": { "type": "boolean" },
+        "contains_sensitive_data": { "type": "boolean" }
+      }
+    },
+    "lifecycle_envelope": {
+      "type": "object",
+      "required": ["deletion_state"],
+      "additionalProperties": false,
+      "properties": {
+        "effective_from": { "type": "string", "format": "date-time" },
+        "effective_until": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "next_refresh_at": { "type": "string", "format": "date-time" },
+        "supersedes_record_id": { "type": "string" },
+        "superseded_by_record_id": { "type": "string" },
+        "deletion_state": {
+          "type": "string",
+          "enum": ["active", "stale", "expired", "source_deleted", "unpublished", "takedown_pending", "deleted"]
+        }
+      }
+    },
+    "claim_provenance": {
+      "type": "object",
+      "required": ["claim_id", "field_path", "value", "claim_type", "source_block_ids", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": { "type": "string" },
+        "field_path": { "type": "string" },
+        "value": { "type": "string" },
+        "claim_type": {
+          "type": "string",
+          "enum": ["explicit", "normalized", "derived", "inferred", "contradicted", "unknown"]
+        },
+        "source_block_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "quoted_evidence": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "requires_review": { "type": "boolean" }
+      }
+    }
+  }
+}

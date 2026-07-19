@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/ingestion-trace.schema.json",
+  "title": "Ingestion Trace",
+  "type": "object",
+  "required": [
+    "trace_id",
+    "job_id",
+    "started_at",
+    "ended_at",
+    "duration_ms",
+    "prompt_injection_detected",
+    "steps"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "trace_id": { "type": "string" },
+    "job_id": { "type": "string" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "ended_at": { "type": "string", "format": "date-time" },
+    "duration_ms": { "type": "integer", "minimum": 0 },
+    "input_hash": { "type": "string" },
+    "output_hash": { "type": "string" },
+    "prompt_injection_detected": { "type": "boolean" },
+    "prompt_injection_fragments": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "model_usage": {
+      "type": "object",
+      "properties": {
+        "prompt_tokens": { "type": "integer" },
+        "completion_tokens": { "type": "integer" }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step_name", "started_at", "ended_at", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "step_name": { "type": "string" },
+          "started_at": { "type": "string", "format": "date-time" },
+          "ended_at": { "type": "string", "format": "date-time" },
+          "status": { "type": "string", "enum": ["success", "failed", "skipped"] },
+          "error_message": { "type": "string" },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

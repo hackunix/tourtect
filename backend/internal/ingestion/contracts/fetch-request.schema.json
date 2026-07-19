@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/fetch-request.schema.json",
+  "title": "Fetch Request",
+  "type": "object",
+  "required": [
+    "request_id",
+    "url",
+    "source_policy_id",
+    "access_mode",
+    "timeout_seconds"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "request_id": { "type": "string" },
+    "url": { "type": "string", "format": "uri" },
+    "source_policy_id": { "type": "string" },
+    "access_mode": {
+      "type": "string",
+      "enum": [
+        "official_api", "partner_api", "rss", "atom", "websub", "sitemap", 
+        "allowlisted_html", "user_submitted_url", "official_embed", 
+        "licensed_feed", "manual_import", "blocked"
+      ]
+    },
+    "expected_content_types": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "headers": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "timeout_seconds": { "type": "integer", "minimum": 1, "maximum": 300 },
+    "force_refetch": { "type": "boolean" },
+    "scheduled_at": { "type": "string", "format": "date-time" },
+    "priority": { "type": "integer", "minimum": 0 }
+  }
+}

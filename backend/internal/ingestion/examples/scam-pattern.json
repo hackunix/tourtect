@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "rec-scam-taxi-001",
+  "record_type": "scam_pattern",
+  "pipeline_stage": "ai_extracted",
+  "source": {
+    "source_id": "hanoi-travel-blog",
+    "source_type": "user_submitted_url",
+    "canonical_url": "https://hanoipassport.example/blog/taxi-meter-rigging-scam",
+    "publisher": "Hanoi Passport Travel Blog",
+    "author": "John Doe",
+    "published_at": "2026-05-12T04:22:00Z",
+    "retrieved_at": "2026-07-19T06:15:00Z",
+    "locale": "en",
+    "country_scope": "VN",
+    "region_scope": "Hanoi"
+  },
+  "content": {
+    "pattern_name": "Rigged Taxi Meter and Unannounced Detour",
+    "observed_behaviors": [
+      "The taximeter jumps rapidly or runs extremely fast.",
+      "The driver takes an unnecessarily long route to inflate the meter price.",
+      "The driver refuses to use standard navigation maps."
+    ],
+    "preconditions": [
+      "Hailing an unbranded or unofficial taxi outside tourist locations.",
+      "Driver refusing to agree on a fixed price before starting."
+    ],
+    "common_scenario": "Tourist hails a random taxi near Hoan Kiem Lake. The driver claims the meter is standard, but the meter rate increases rapidly by 10x within 2 kilometers. When questioned, the driver locks doors or demands payment.",
+    "geographic_scope": "Hanoi Old Quarter and major tourist spots",
+    "time_scope": "Mostly evening and late night",
+    "confidence": 0.85,
+    "independent_source_count": 4,
+    "evidence": [
+      "Traveler report of paying 500,000 VND for a 1.5 km trip near Hoan Kiem.",
+      "Independent blog post detailing rigged meters in Hanoi."
+    ],
+    "safe_actions": [
+      "Use only major ride-hailing applications (e.g., Grab, Be, Xanh SM) to book transport.",
+      "Take reputable branded taxis (e.g., Mai Linh, Taxi Group) and verify the driver ID and company brand mark on the door.",
+      "Take a picture of the driver ID card and license plate before entering."
+    ],
+    "review_status": "pending_human_editor"
+  },
+  "provenance": {
+    "claims": [
+      {
+        "claim_id": "claim-scam-behaviors",
+        "field_path": "/content/observed_behaviors",
+        "value": "Rigged meters and rapid rate increments",
+        "claim_type": "explicit",
+        "source_block_ids": ["block-8"],
+        "quoted_evidence": "meter jumps extremely fast to charge ten times normal fare",
+        "confidence": 0.90,
+        "requires_review": false
+      }
+    ]
+  },
+  "extraction": {
+    "provider": "google",
+    "model": "gemini-1.5-pro",
+    "model_version": "v1",
+    "prompt_version": "v1.0",
+    "extracted_at": "2026-07-19T06:20:00Z"
+  },
+  "quality": {
+    "overall_confidence": 0.88,
+    "requires_human_review": true,
+    "review_reasons": ["High-risk scam pattern warning requires verification before public release"]
+  },
+  "policy": {
+    "rights_status": "fair_use_excerpt",
+    "robots_status": "allowed",
+    "allowed_uses": ["display", "aggregate"],
+    "retention_policy": {
+      "max_ttl_seconds": 7776000,
+      "reason": "Quarterly review of active scam patterns"
+    },
+    "publication_allowed": false
+  },
+  "lifecycle": {
+    "deletion_state": "active"
+  }
+}

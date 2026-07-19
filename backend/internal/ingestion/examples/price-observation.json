@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "rec-price-taxi-001",
+  "record_type": "price_observation",
+  "pipeline_stage": "ai_extracted",
+  "source": {
+    "source_id": "noibai-airport-taxi-guide",
+    "source_type": "allowlisted_html",
+    "canonical_url": "https://noibaiairport.vn/en/taxi-service-rates-2026",
+    "publisher": "Noi Bai International Airport Authority",
+    "published_at": "2026-06-01T00:00:00Z",
+    "retrieved_at": "2026-07-19T06:15:00Z",
+    "locale": "en",
+    "country_scope": "VN",
+    "region_scope": "Hanoi"
+  },
+  "content": {
+    "item_name": "Noi Bai Airport to Hanoi center taxi ride",
+    "normalized_item_id": "taxi_noibai_hanoicty",
+    "display_name": "Official Airport Taxi (Noi Bai to Hoan Kiem)",
+    "amount": {
+      "minor_units": "350000",
+      "currency": "VND",
+      "scale": 0
+    },
+    "unit": "one_way_trip",
+    "pricing_context": "posted_price",
+    "geographic_area": "Noi Bai Airport to Hanoi Old Quarter",
+    "observation_time": "2026-06-01T00:00:00Z",
+    "posted_price": {
+      "minor_units": "350000",
+      "currency": "VND",
+      "scale": 0
+    },
+    "paid_price": {
+      "minor_units": "350000",
+      "currency": "VND",
+      "scale": 0
+    },
+    "included_fees": ["toll_road_fees"],
+    "excluded_fees": [],
+    "promotion": "none",
+    "online_platform": false,
+    "evidence": "Standard sedan fare is listed at 350,000 VND inclusive of airport entrance tolls.",
+    "source_type": "official_tariff"
+  },
+  "provenance": {
+    "claims": [
+      {
+        "claim_id": "claim-fare",
+        "field_path": "/content/amount/minor_units",
+        "value": "350000",
+        "claim_type": "explicit",
+        "source_block_ids": ["block-5"],
+        "quoted_evidence": "sedan fare is listed at 350,000 VND",
+        "confidence": 0.99,
+        "requires_review": false
+      }
+    ]
+  },
+  "extraction": {
+    "provider": "google",
+    "model": "gemini-1.5-pro",
+    "model_version": "v1",
+    "prompt_version": "v1.0",
+    "extracted_at": "2026-07-19T06:20:00Z"
+  },
+  "quality": {
+    "overall_confidence": 0.98,
+    "requires_human_review": false
+  },
+  "policy": {
+    "rights_status": "fair_use_excerpt",
+    "robots_status": "allowed",
+    "allowed_uses": ["display", "aggregate"],
+    "retention_policy": {
+      "max_ttl_seconds": 2592000,
+      "reason": "Monthly review of taxi tariffs"
+    },
+    "publication_allowed": true
+  },
+  "lifecycle": {
+    "deletion_state": "active"
+  }
+}

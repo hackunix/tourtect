@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/review-decision.schema.json",
+  "title": "Review Decision",
+  "type": "object",
+  "required": [
+    "review_id",
+    "record_id",
+    "reviewer_role",
+    "decision",
+    "reviewed_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "review_id": { "type": "string" },
+    "record_id": { "type": "string" },
+    "reviewer_role": { "type": "string" },
+    "decision": {
+      "type": "string",
+      "enum": ["approve", "approve_with_changes", "request_more_evidence", "quarantine", "reject", "expire", "unpublish"]
+    },
+    "reason_codes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "corrected_fields": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "removed_fields": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "evidence_accepted": { "type": "boolean" },
+    "evidence_rejected": { "type": "boolean" },
+    "publication_scope": {
+      "type": "string",
+      "enum": ["local", "regional", "national", "global"]
+    },
+    "expiry": { "type": "string", "format": "date-time" },
+    "reviewed_at": { "type": "string", "format": "date-time" },
+    "audit_trace": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

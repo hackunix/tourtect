@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "rec-news-korean-001",
+  "record_type": "news_article",
+  "pipeline_stage": "ai_extracted",
+  "source": {
+    "source_id": "seoul-news-travel",
+    "source_type": "rss",
+    "canonical_url": "https://seoulnews.example/travel/hanoi-taxi-warnings-2026",
+    "publisher": "Seoul News Daily",
+    "author": "Kim Min-ji",
+    "published_at": "2026-07-15T09:00:00Z",
+    "retrieved_at": "2026-07-19T06:15:00Z",
+    "locale": "ko-KR",
+    "country_scope": "VN",
+    "region_scope": "Hanoi"
+  },
+  "content": {
+    "canonical_url": "https://seoulnews.example/travel/hanoi-taxi-warnings-2026",
+    "publisher": "Seoul News Daily",
+    "author": "Kim Min-ji",
+    "title": "하노이 관광 시 불법 택시 '바가지 요금' 주의보 발령",
+    "publication_time": "2026-07-15T09:00:00Z",
+    "permitted_snippet": "최근 하노이 노이바이 국제공항에서 시내로 이동하는 한국인 관광객들을 대상으로 부당한 요금을 청구하는 사설 택시 사례가 증가하고 있어 각별한 주의가 요구됩니다.",
+    "thumbnail_permission": true,
+    "embed_permission": false,
+    "topic_links": ["taxi_overcharging", "vietnam_travel_safety"],
+    "place_links": ["place-noibai-airport", "place-hanoi-old-quarter"],
+    "claim_summaries": [
+      "Unofficial taxi drivers target tourists arriving at Noi Bai Airport.",
+      "Charges exceeding 5 times the regular Grab rate have been reported."
+    ],
+    "sponsorship_label": "none",
+    "rights_state": "permitted_metadata_only"
+  },
+  "provenance": {
+    "claims": [
+      {
+        "claim_id": "claim-news-target",
+        "field_path": "/content/title",
+        "value": "하노이 관광 시 불법 택시 '바가지 요금' 주의보 발령",
+        "claim_type": "explicit",
+        "source_block_ids": ["block-1"],
+        "quoted_evidence": "하노이 관광 시 불법 택시 '바가지 요금' 주의보 발령",
+        "confidence": 0.99,
+        "requires_review": false
+      }
+    ]
+  },
+  "extraction": {
+    "provider": "google",
+    "model": "gemini-1.5-pro",
+    "model_version": "v1",
+    "prompt_version": "v1.0",
+    "extracted_at": "2026-07-19T06:20:00Z"
+  },
+  "quality": {
+    "overall_confidence": 0.97,
+    "requires_human_review": false
+  },
+  "policy": {
+    "rights_status": "fair_use_excerpt",
+    "robots_status": "allowed",
+    "allowed_uses": ["display", "aggregate"],
+    "retention_policy": {
+      "max_ttl_seconds": 604800,
+      "reason": "Standard cache duration for news"
+    },
+    "publication_allowed": true
+  },
+  "lifecycle": {
+    "deletion_state": "active"
+  }
+}

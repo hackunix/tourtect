@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/deduplication-result.schema.json",
+  "title": "Deduplication Result",
+  "type": "object",
+  "required": [
+    "dedupe_id",
+    "record_id",
+    "status",
+    "merge_decision"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "dedupe_id": { "type": "string" },
+    "record_id": { "type": "string" },
+    "status": { "type": "string", "enum": ["unique", "duplicate"] },
+    "duplicate_reason": {
+      "type": "string",
+      "enum": [
+        "exact_url", "canonical_url", "content_hash", "near_text", "same_event", 
+        "cross_language", "repost", "source_revision", "distinct_report"
+      ]
+    },
+    "canonical_record_id": { "type": "string" },
+    "duplicate_record_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "similarity_scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "content_similarity": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "title_similarity": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "geo_similarity": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "time_similarity": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+      }
+    },
+    "source_independence": { "type": "boolean" },
+    "merge_decision": {
+      "type": "string",
+      "enum": ["keep_original", "update_original", "link_only", "ignore"]
+    }
+  }
+}

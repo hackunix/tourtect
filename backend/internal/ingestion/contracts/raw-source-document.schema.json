@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/raw-source-document.schema.json",
+  "title": "Raw Source Document",
+  "type": "object",
+  "required": [
+    "document_id",
+    "fetch_id",
+    "source_id",
+    "blocks"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "document_id": { "type": "string" },
+    "fetch_id": { "type": "string" },
+    "source_id": { "type": "string" },
+    "title": { "type": "string" },
+    "permitted_excerpt": { "type": "string" },
+    "cleaned_visible_text": { "type": "string" },
+    "structured_metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "opengraph": { "type": "object", "additionalProperties": true },
+        "json_ld": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "allowed_image_references": {
+      "type": "array",
+      "items": { "type": "string", "format": "uri" }
+    },
+    "transcript": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["timestamp_seconds", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "timestamp_seconds": { "type": "number", "minimum": 0.0 },
+          "speaker": { "type": "string" },
+          "text": { "type": "string" }
+        }
+      }
+    },
+    "blocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["block_id", "block_type", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "block_id": { "type": "string" },
+          "block_type": { "type": "string", "enum": ["paragraph", "heading", "table_cell", "table_row", "transcript_line", "metadata"] },
+          "text": { "type": "string" },
+          "source_location": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "css_selector": { "type": "string" },
+              "json_pointer": { "type": "string" },
+              "line_start": { "type": "integer", "minimum": 1 },
+              "line_end": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

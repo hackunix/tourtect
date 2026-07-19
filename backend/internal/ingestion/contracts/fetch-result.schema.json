@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/fetch-result.schema.json",
+  "title": "Fetch Result",
+  "type": "object",
+  "required": [
+    "fetch_id",
+    "http_status",
+    "final_url",
+    "mime_type",
+    "retrieved_at",
+    "latency_ms",
+    "robots_decision",
+    "policy_decision",
+    "error_category",
+    "content_truncated",
+    "javascript_executed"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "fetch_id": { "type": "string" },
+    "http_status": { "type": "integer" },
+    "final_url": { "type": "string", "format": "uri" },
+    "redirect_chain": {
+      "type": "array",
+      "items": { "type": "string", "format": "uri" }
+    },
+    "mime_type": { "type": "string" },
+    "character_encoding": { "type": "string" },
+    "content_length": { "type": "integer", "minimum": 0 },
+    "etag": { "type": "string" },
+    "last_modified": { "type": "string" },
+    "cache_status": { "type": "string", "enum": ["hit", "miss", "revalidated", "uncacheable"] },
+    "retrieved_at": { "type": "string", "format": "date-time" },
+    "latency_ms": { "type": "integer", "minimum": 0 },
+    "retry_after_seconds": { "type": "integer", "minimum": 0 },
+    "robots_decision": { "type": "string", "enum": ["allowed", "disallowed"] },
+    "policy_decision": { "type": "string", "enum": ["approved", "rejected"] },
+    "content_hash": { "type": "string" },
+    "text_extraction_state": { "type": "string", "enum": ["success", "failed", "partial"] },
+    "error_category": {
+      "type": "string",
+      "enum": [
+        "none", "dns", "timeout", "connection_failed", "http_4xx", "http_5xx", 
+        "robots_block", "policy_block", "size_limit", "ssl_error", "ssrf_prevented", "unknown"
+      ]
+    },
+    "content_truncated": { "type": "boolean" },
+    "javascript_executed": { "type": "boolean" }
+  }
+}

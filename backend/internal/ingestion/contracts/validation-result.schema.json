@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/validation-result.schema.json",
+  "title": "Validation Result",
+  "type": "object",
+  "required": [
+    "validation_id",
+    "record_id",
+    "status",
+    "validated_at",
+    "failures"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "validation_id": { "type": "string" },
+    "record_id": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["valid", "valid_with_warnings", "quarantined", "rejected"]
+    },
+    "validated_at": { "type": "string", "format": "date-time" },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["field_path", "category", "code", "message"],
+        "additionalProperties": false,
+        "properties": {
+          "field_path": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": [
+              "json_schema", "missing_evidence", "invalid_currency", "invalid_unit", 
+              "invalid_date", "future_date_anomaly", "expired_data", "duplicate_record", 
+              "conflicting_sources", "unsupported_accusation", "personal_data_detected", 
+              "hallucinated_hotline_risk", "rights_violation", "robots_violation", 
+              "source_policy_violation", "impossible_coordinates", "price_outlier", 
+              "unsupported_record_type", "low_model_confidence", "low_field_confidence"
+            ]
+          },
+          "code": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

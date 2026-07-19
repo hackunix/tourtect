@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "rec-comm-offer-001",
+  "record_type": "commerce_offer",
+  "pipeline_stage": "ai_extracted",
+  "source": {
+    "source_id": "shopeefood-api",
+    "source_type": "partner_api",
+    "canonical_url": "https://shopeefood.vn/hanoi/banh-mi-pho-co",
+    "publisher": "ShopeeFood Vietnam",
+    "published_at": "2026-07-19T05:00:00Z",
+    "retrieved_at": "2026-07-19T06:15:00Z",
+    "locale": "vi-VN",
+    "country_scope": "VN",
+    "region_scope": "Hanoi"
+  },
+  "content": {
+    "base_price": {
+      "minor_units": "35000",
+      "currency": "VND",
+      "scale": 0
+    },
+    "discount": {
+      "minor_units": "5000",
+      "currency": "VND",
+      "scale": 0
+    },
+    "voucher": "FOOD20",
+    "delivery_fee": {
+      "minor_units": "15000",
+      "currency": "VND",
+      "scale": 0
+    },
+    "platform_fee": {
+      "minor_units": "2000",
+      "currency": "VND",
+      "scale": 0
+    },
+    "membership_condition": "none",
+    "personalization": "new_user_discount",
+    "availability": "in_stock",
+    "online_platform": "ShopeeFood",
+    "observed_time": "2026-07-19T05:00:00Z"
+  },
+  "provenance": {
+    "claims": [
+      {
+        "claim_id": "claim-base-price",
+        "field_path": "/content/base_price/minor_units",
+        "value": "35000",
+        "claim_type": "explicit",
+        "source_block_ids": ["block-12"],
+        "quoted_evidence": "Bánh Mì giá 35.000đ",
+        "confidence": 0.99,
+        "requires_review": false
+      }
+    ]
+  },
+  "extraction": {
+    "provider": "google",
+    "model": "gemini-1.5-pro",
+    "model_version": "v1",
+    "prompt_version": "v1.0",
+    "extracted_at": "2026-07-19T06:20:00Z"
+  },
+  "quality": {
+    "overall_confidence": 0.98,
+    "requires_human_review": false
+  },
+  "policy": {
+    "rights_status": "licensed",
+    "robots_status": "allowed",
+    "allowed_uses": ["display", "aggregate"],
+    "retention_policy": {
+      "max_ttl_seconds": 86400,
+      "reason": "Expiring daily food prices"
+    },
+    "publication_allowed": true
+  },
+  "lifecycle": {
+    "deletion_state": "active"
+  }
+}

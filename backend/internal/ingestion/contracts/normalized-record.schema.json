@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/normalized-record.schema.json",
+  "title": "Normalized Record",
+  "type": "object",
+  "required": [
+    "record_id",
+    "record_type",
+    "extracted_record_id",
+    "content",
+    "source",
+    "provenance",
+    "lifecycle"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "record_id": { "type": "string" },
+    "record_type": { "type": "string" },
+    "extracted_record_id": { "type": "string" },
+    "content": { "type": "object" },
+    "source": {
+      "$ref": "common.schema.json#/$defs/source_envelope"
+    },
+    "provenance": {
+      "$ref": "common.schema.json#/$defs/provenance_envelope"
+    },
+    "extraction": {
+      "$ref": "common.schema.json#/$defs/extraction_envelope"
+    },
+    "quality": {
+      "$ref": "common.schema.json#/$defs/quality_envelope"
+    },
+    "policy": {
+      "$ref": "common.schema.json#/$defs/policy_envelope"
+    },
+    "lifecycle": {
+      "$ref": "common.schema.json#/$defs/lifecycle_envelope"
+    },
+    "normalization": {
+      "type": "object",
+      "required": ["normalized_at", "fields_normalized"],
+      "additionalProperties": false,
+      "properties": {
+        "normalized_at": { "type": "string", "format": "date-time" },
+        "fields_normalized": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "resolved_place_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "normalized_dates": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "format": "date-time" }
+        },
+        "normalized_currencies": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[A-Z]{3}$" }
+        },
+        "normalized_units": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "canonical_categories": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "translation_status": {
+          "type": "object",
+          "required": ["source_locale", "target_locale", "translated"],
+          "properties": {
+            "source_locale": { "type": "string" },
+            "target_locale": { "type": "string" },
+            "translated": { "type": "boolean" },
+            "translator": { "type": "string" }
+          }
+        },
+        "normalization_warnings": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "unresolved_fields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "derived_fields": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

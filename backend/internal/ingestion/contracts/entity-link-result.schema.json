@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/entity-link-result.schema.json",
+  "title": "Entity Link Result",
+  "type": "object",
+  "required": [
+    "mention",
+    "entity_type",
+    "resolution_method",
+    "requires_review"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mention": { "type": "string" },
+    "entity_type": { "type": "string", "enum": ["place", "scam_pattern", "alert_region"] },
+    "selected_entity_id": { "type": "string" },
+    "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+    "resolution_method": {
+      "type": "string",
+      "enum": [
+        "exact_id", "exact_alias", "normalized_alias", "geo_match", 
+        "official_reference", "fuzzy_match", "llm_suggestion", "human_selected", "unresolved"
+      ]
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["entity_id", "score", "reasons"],
+        "additionalProperties": false,
+        "properties": {
+          "entity_id": { "type": "string" },
+          "score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "reasons": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "requires_review": { "type": "boolean" }
+  }
+}

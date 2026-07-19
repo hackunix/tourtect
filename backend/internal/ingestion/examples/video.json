@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "rec-video-youtube-001",
+  "record_type": "video",
+  "pipeline_stage": "ai_extracted",
+  "source": {
+    "source_id": "youtube-api",
+    "source_type": "official_api",
+    "canonical_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "publisher": "YouTube",
+    "author": "Nomad Backpacker Channels",
+    "published_at": "2026-04-10T12:00:00Z",
+    "retrieved_at": "2026-07-19T06:15:00Z",
+    "locale": "en",
+    "country_scope": "VN",
+    "region_scope": "Hanoi"
+  },
+  "content": {
+    "canonical_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "publisher": "YouTube",
+    "channel": "Nomad Backpacker Channels",
+    "author": "Nomad Backpacker",
+    "title": "Hanoi Travel Warnings: Scams to Avoid in 2026",
+    "publication_time": "2026-04-10T12:00:00Z",
+    "permitted_snippet": "In this video, I walkthrough my experience getting overcharged at Hanoi Old Quarter, taxi meter tricks, and street vendor pushiness. Watch this before visiting Vietnam!",
+    "thumbnail_permission": true,
+    "embed_permission": true,
+    "topic_links": ["hanoi_scams", "travel_safety_vietnam"],
+    "place_links": ["place-hanoi-old-quarter"],
+    "claim_summaries": [
+      "Highlights street vendor charging tourists up to 150k VND for simple fruit basket photo.",
+      "Recommends Grab or Xanh SM for local transport."
+    ],
+    "sponsorship_label": "none",
+    "rights_state": "allowed_official_embed"
+  },
+  "provenance": {
+    "claims": [
+      {
+        "claim_id": "claim-video-title",
+        "field_path": "/content/title",
+        "value": "Hanoi Travel Warnings: Scams to Avoid in 2026",
+        "claim_type": "explicit",
+        "source_block_ids": ["block-1"],
+        "quoted_evidence": "Hanoi Travel Warnings: Scams to Avoid in 2026",
+        "confidence": 0.99,
+        "requires_review": false
+      }
+    ]
+  },
+  "extraction": {
+    "provider": "google",
+    "model": "gemini-1.5-pro",
+    "model_version": "v1",
+    "prompt_version": "v1.0",
+    "extracted_at": "2026-07-19T06:20:00Z"
+  },
+  "quality": {
+    "overall_confidence": 0.98,
+    "requires_human_review": false
+  },
+  "policy": {
+    "rights_status": "licensed",
+    "robots_status": "allowed",
+    "allowed_uses": ["display", "aggregate"],
+    "retention_policy": {
+      "max_ttl_seconds": 1296000,
+      "reason": "Standard cache duration for social video metadata"
+    },
+    "publication_allowed": true
+  },
+  "lifecycle": {
+    "deletion_state": "active"
+  }
+}

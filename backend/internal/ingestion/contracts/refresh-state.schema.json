@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/refresh-state.schema.json",
+  "title": "Refresh State",
+  "type": "object",
+  "required": [
+    "record_id",
+    "last_checked_at",
+    "next_check_at",
+    "current_state"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "record_id": { "type": "string" },
+    "last_checked_at": { "type": "string", "format": "date-time" },
+    "next_check_at": { "type": "string", "format": "date-time" },
+    "source_update_time": { "type": "string", "format": "date-time" },
+    "etag": { "type": "string" },
+    "last_modified": { "type": "string" },
+    "change_hash": { "type": "string" },
+    "current_state": {
+      "type": "string",
+      "enum": ["active", "stale", "expired", "source_deleted", "unpublished", "takedown_pending", "deleted"]
+    },
+    "expiry": { "type": "string", "format": "date-time" },
+    "replacement_version_id": { "type": "string" },
+    "takedown_request": {
+      "type": "object",
+      "required": ["requested"],
+      "additionalProperties": false,
+      "properties": {
+        "requested": { "type": "boolean" },
+        "reason": { "type": "string" },
+        "requested_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "source_deletion": { "type": "boolean" },
+    "legal_removal": { "type": "boolean" },
+    "robots_policy_change": { "type": "boolean" },
+    "connector_disablement": { "type": "boolean" }
+  }
+}

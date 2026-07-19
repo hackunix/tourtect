@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/ingestion-job.schema.json",
+  "title": "Ingestion Job",
+  "type": "object",
+  "required": [
+    "job_id",
+    "connector",
+    "source_policy_id",
+    "priority",
+    "attempt_count",
+    "status",
+    "current_stage",
+    "trace_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "job_id": { "type": "string" },
+    "connector": { "type": "string" },
+    "source_policy_id": { "type": "string" },
+    "candidate_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "priority": { "type": "integer", "minimum": 0 },
+    "attempt_count": { "type": "integer", "minimum": 0 },
+    "available_time": { "type": "string", "format": "date-time" },
+    "lock_state": { "type": "string", "enum": ["locked", "unlocked"] },
+    "status": {
+      "type": "string",
+      "enum": ["queued", "running", "completed", "failed", "dead_letter"]
+    },
+    "current_stage": {
+      "type": "string",
+      "enum": [
+        "discover", "policy_check", "fetch", "parse", "llm_extract", 
+        "normalize", "validate", "deduplicate", "entity_link", 
+        "review_queue", "publish", "refresh", "delete"
+      ]
+    },
+    "retry_policy": {
+      "type": "object",
+      "required": ["max_attempts", "backoff_factor"],
+      "additionalProperties": false,
+      "properties": {
+        "max_attempts": { "type": "integer", "minimum": 1 },
+        "backoff_factor": { "type": "number", "minimum": 1.0 }
+      }
+    },
+    "dead_letter_state": { "type": "boolean" },
+    "trace_id": { "type": "string" },
+    "parent_job_id": { "type": "string" },
+    "error_details": {
+      "type": "object",
+      "required": ["message"],
+      "additionalProperties": false,
+      "properties": {
+        "message": { "type": "string" },
+        "stack_trace": { "type": "string" }
+      }
+    }
+  }
+}

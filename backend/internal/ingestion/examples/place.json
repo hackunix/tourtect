@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "rec-place-closure-001",
+  "record_type": "place_status",
+  "pipeline_stage": "ai_extracted",
+  "source": {
+    "source_id": "hanoi-temple-of-literature-page",
+    "source_type": "allowlisted_html",
+    "canonical_url": "https://vanmieu.gov.vn/en/notices/maintenance-closure-2026",
+    "publisher": "Van Mieu - Quoc Tu Giam Center",
+    "published_at": "2026-07-18T10:00:00Z",
+    "retrieved_at": "2026-07-19T06:15:00Z",
+    "locale": "en",
+    "country_scope": "VN",
+    "region_scope": "Hanoi"
+  },
+  "content": {
+    "status": "temporarily_closed",
+    "effective_time": "2026-07-20T00:00:00Z",
+    "expiry": "2026-07-22T23:59:59Z",
+    "reason": "Scheduled restoration and preservation work on the Constellation of Literature pavilion (Khue Van Cac).",
+    "evidence": "Van Mieu Center announces temporary closure of Khue Van Cac from July 20 to July 22 for annual preservation."
+  },
+  "provenance": {
+    "claims": [
+      {
+        "claim_id": "claim-status",
+        "field_path": "/content/status",
+        "value": "temporarily_closed",
+        "claim_type": "explicit",
+        "source_block_ids": ["block-2"],
+        "quoted_evidence": "temporary closure of Khue Van Cac",
+        "confidence": 0.99,
+        "requires_review": false
+      }
+    ]
+  },
+  "extraction": {
+    "provider": "google",
+    "model": "gemini-1.5-pro",
+    "model_version": "v1",
+    "prompt_version": "v1.0",
+    "extracted_at": "2026-07-19T06:20:00Z"
+  },
+  "quality": {
+    "overall_confidence": 0.98,
+    "requires_human_review": false
+  },
+  "policy": {
+    "rights_status": "fair_use_excerpt",
+    "robots_status": "allowed",
+    "allowed_uses": ["display", "aggregate"],
+    "retention_policy": {
+      "max_ttl_seconds": 345600,
+      "reason": "Expiring temporary closure status"
+    },
+    "publication_allowed": true
+  },
+  "lifecycle": {
+    "deletion_state": "active"
+  }
+}

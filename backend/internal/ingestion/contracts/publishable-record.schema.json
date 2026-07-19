@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/publishable-record.schema.json",
+  "title": "Publishable Record",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "record_id",
+    "record_type",
+    "content",
+    "attribution",
+    "publication_state"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "record_id": { "type": "string" },
+    "record_type": { "type": "string" },
+    "content": { "type": "object" },
+    "attribution": {
+      "type": "object",
+      "required": ["publisher"],
+      "additionalProperties": false,
+      "properties": {
+        "publisher": { "type": "string" },
+        "author": { "type": "string" },
+        "canonical_url": { "type": "string", "format": "uri" },
+        "published_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "publication_state": {
+      "type": "object",
+      "required": ["published_at", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "published_at": { "type": "string", "format": "date-time" },
+        "effective_from": { "type": "string", "format": "date-time" },
+        "effective_until": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "version": { "type": "integer", "minimum": 1 },
+        "public_confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "public_explanation": { "type": "string" },
+        "review_status": { "type": "string", "enum": ["verified", "editor_approved"] }
+      }
+    },
+    "redaction_applied": {
+      "type": "object",
+      "required": ["pii_redacted"],
+      "additionalProperties": false,
+      "properties": {
+        "pii_redacted": { "type": "boolean" },
+        "redacted_fields_count": { "type": "integer" }
+      }
+    }
+  }
+}

@@ -1,0 +1,413 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/llm-extraction-response.schema.json",
+  "title": "LLM Extraction Response",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "request_id",
+    "status",
+    "records"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "request_id": { "type": "string" },
+    "provider_response_id": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["completed", "partial", "insufficient_evidence", "unsupported_content", "provider_refusal", "failed"]
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/extracted_record"
+      }
+    },
+    "document_classification": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "unresolved_entities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "model_usage": {
+      "type": "object",
+      "required": ["prompt_tokens", "completion_tokens"],
+      "properties": {
+        "prompt_tokens": { "type": "integer" },
+        "completion_tokens": { "type": "integer" }
+      }
+    },
+    "refusal": { "type": ["string", "null"] }
+  },
+  "$defs": {
+    "extracted_record": {
+      "type": "object",
+      "required": ["record_id", "record_type", "content", "provenance"],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "type": "string" },
+        "record_id": { "type": "string" },
+        "record_type": {
+          "type": "string",
+          "enum": [
+            "official_alert", "transport_disruption", "visa_or_immigration_update",
+            "weather_or_disaster_alert", "place", "place_status", "place_hours",
+            "tourism_event", "ticket_or_fee", "price_observation", "commerce_offer",
+            "scam_pattern", "safety_guidance", "emergency_directory_entry",
+            "news_article", "video", "community_post", "travel_tip",
+            "currency_exchange_rate", "unknown"
+          ]
+        },
+        "pipeline_stage": { "type": "string" },
+        "source": {
+          "$ref": "common.schema.json#/$defs/source_envelope"
+        },
+        "content": {
+          "type": "object",
+          "anyOf": [
+            { "$ref": "#/$defs/content_place" },
+            { "$ref": "#/$defs/content_place_status" },
+            { "$ref": "#/$defs/content_price_observation" },
+            { "$ref": "#/$defs/content_commerce_offer" },
+            { "$ref": "#/$defs/content_official_alert" },
+            { "$ref": "#/$defs/content_transport_disruption" },
+            { "$ref": "#/$defs/content_scam_pattern" },
+            { "$ref": "#/$defs/content_safety_guidance" },
+            { "$ref": "#/$defs/content_emergency_directory_entry" },
+            { "$ref": "#/$defs/content_news_article_or_video" },
+            { "$ref": "#/$defs/content_unknown" }
+          ]
+        },
+        "provenance": {
+          "type": "object",
+          "required": ["claims"],
+          "additionalProperties": false,
+          "properties": {
+            "claims": {
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/claim_provenance"
+              }
+            }
+          }
+        },
+        "extraction": {
+          "$ref": "common.schema.json#/$defs/extraction_envelope"
+        },
+        "quality": {
+          "$ref": "common.schema.json#/$defs/quality_envelope"
+        },
+        "policy": {
+          "$ref": "common.schema.json#/$defs/policy_envelope"
+        },
+        "lifecycle": {
+          "$ref": "common.schema.json#/$defs/lifecycle_envelope"
+        },
+        "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "field_confidences": {
+          "type": "object",
+          "additionalProperties": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+        },
+        "suggested_review_level": {
+          "type": "string",
+          "enum": ["none", "machine_only", "human_editor", "trusted_authority"]
+        }
+      }
+    },
+    "content_place": {
+      "type": "object",
+      "required": ["canonical_name", "place_type"],
+      "additionalProperties": false,
+      "properties": {
+        "canonical_name": { "type": "string" },
+        "local_name": { "type": "string" },
+        "aliases": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "place_type": { "type": "string" },
+        "address": { "type": "string" },
+        "administrative_area": { "type": "string" },
+        "coordinates": {
+          "$ref": "common.schema.json#/$defs/coordinates"
+        },
+        "opening_hours": { "type": "string" },
+        "contact": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "phone": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "website": { "type": "string", "format": "uri" }
+          }
+        },
+        "official_url": { "type": "string", "format": "uri" },
+        "accessibility": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "business_status": {
+          "type": "string",
+          "enum": ["operational", "closed_temporarily", "closed_permanently"]
+        },
+        "source_authority": { "type": "string" },
+        "effective_period": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "start": { "type": "string", "format": "date-time" },
+            "end": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    },
+    "content_place_status": {
+      "type": "object",
+      "required": ["status", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["open", "temporarily_closed", "permanently_closed", "restricted", "unknown"]
+        },
+        "effective_time": { "type": "string", "format": "date-time" },
+        "expiry": { "type": "string", "format": "date-time" },
+        "reason": { "type": "string" },
+        "evidence": { "type": "string" }
+      }
+    },
+    "content_price_observation": {
+      "type": "object",
+      "required": ["item_name", "amount", "unit"],
+      "additionalProperties": false,
+      "properties": {
+        "item_name": { "type": "string" },
+        "normalized_item_id": { "type": "string" },
+        "display_name": { "type": "string" },
+        "amount": {
+          "$ref": "common.schema.json#/$defs/monetary_amount"
+        },
+        "unit": { "type": "string" },
+        "pricing_context": {
+          "type": "string",
+          "enum": ["posted_price", "verbal_quote", "negotiated", "metered", "platform_booked", "unsolicited_goods_service", "donation_solicitation"]
+        },
+        "geographic_area": { "type": "string" },
+        "observation_time": { "type": "string", "format": "date-time" },
+        "posted_price": {
+          "$ref": "common.schema.json#/$defs/monetary_amount"
+        },
+        "paid_price": {
+          "$ref": "common.schema.json#/$defs/monetary_amount"
+        },
+        "included_fees": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "excluded_fees": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "promotion": { "type": "string" },
+        "online_platform": { "type": "boolean" },
+        "evidence": { "type": "string" },
+        "source_type": { "type": "string" }
+      }
+    },
+    "content_commerce_offer": {
+      "type": "object",
+      "required": ["base_price"],
+      "additionalProperties": false,
+      "properties": {
+        "base_price": {
+          "$ref": "common.schema.json#/$defs/monetary_amount"
+        },
+        "discount": {
+          "$ref": "common.schema.json#/$defs/monetary_amount"
+        },
+        "voucher": { "type": "string" },
+        "delivery_fee": {
+          "$ref": "common.schema.json#/$defs/monetary_amount"
+        },
+        "platform_fee": {
+          "$ref": "common.schema.json#/$defs/monetary_amount"
+        },
+        "membership_condition": { "type": "string" },
+        "personalization": { "type": "string" },
+        "availability": { "type": "string" },
+        "online_platform": { "type": "string" },
+        "observed_time": { "type": "string", "format": "date-time" }
+      }
+    },
+    "content_official_alert": {
+      "type": "object",
+      "required": ["alert_type", "severity", "affected_area", "official_instructions"],
+      "additionalProperties": false,
+      "properties": {
+        "alert_type": { "type": "string" },
+        "severity": { "type": "string", "enum": ["typical", "elevated", "high_risk", "insufficient_data"] },
+        "affected_area": { "type": "string" },
+        "effective_time": { "type": "string", "format": "date-time" },
+        "expiry": { "type": "string", "format": "date-time" },
+        "official_instructions": { "type": "string" },
+        "issuing_authority": { "type": "string" },
+        "canonical_source": { "type": "string", "format": "uri" },
+        "revision_id": { "type": "string" }
+      }
+    },
+    "content_transport_disruption": {
+      "type": "object",
+      "required": ["mode", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "type": "string" },
+        "operator": { "type": "string" },
+        "route": { "type": "string" },
+        "origin": { "type": "string" },
+        "destination": { "type": "string" },
+        "scheduled_time": { "type": "string", "format": "date-time" },
+        "revised_time": { "type": "string", "format": "date-time" },
+        "status": { "type": "string" },
+        "cause": { "type": "string" },
+        "passenger_guidance": { "type": "string" },
+        "effective_interval": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "start": { "type": "string", "format": "date-time" },
+            "end": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    },
+    "content_scam_pattern": {
+      "type": "object",
+      "required": ["pattern_name", "observed_behaviors", "preconditions"],
+      "additionalProperties": false,
+      "properties": {
+        "pattern_name": { "type": "string" },
+        "observed_behaviors": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "preconditions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "common_scenario": { "type": "string" },
+        "geographic_scope": { "type": "string" },
+        "time_scope": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "independent_source_count": { "type": "integer", "minimum": 1 },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "safe_actions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "review_status": { "type": "string" }
+      }
+    },
+    "content_safety_guidance": {
+      "type": "object",
+      "required": ["situation_type", "locale"],
+      "additionalProperties": false,
+      "properties": {
+        "situation_type": { "type": "string" },
+        "urgency_applicability": {
+          "type": "string",
+          "enum": ["critical", "urgent", "non_emergency", "information"]
+        },
+        "approved_action_codes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "source_authority": { "type": "string" },
+        "effective_interval": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "start": { "type": "string", "format": "date-time" },
+            "end": { "type": "string", "format": "date-time" }
+          }
+        },
+        "version": { "type": "string" },
+        "locale": { "type": "string" }
+      }
+    },
+    "content_emergency_directory_entry": {
+      "type": "object",
+      "required": ["country", "service_type", "number"],
+      "additionalProperties": false,
+      "properties": {
+        "country": { "type": "string", "pattern": "^[A-Z]{2}$" },
+        "region": { "type": "string" },
+        "service_type": {
+          "type": "string",
+          "enum": ["police", "ambulance", "fire", "embassy", "hotline", "crisis_center", "tourist_police"]
+        },
+        "number": { "type": "string", "pattern": "^[+0-9\\s\\-()]+$" },
+        "display_label": { "type": "string" },
+        "availability": { "type": "string" },
+        "languages": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "effective_interval": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "start": { "type": "string", "format": "date-time" },
+            "end": { "type": "string", "format": "date-time" }
+          }
+        },
+        "verification_source": { "type": "string" },
+        "verified_time": { "type": "string", "format": "date-time" },
+        "version": { "type": "string" }
+      }
+    },
+    "content_news_article_or_video": {
+      "type": "object",
+      "required": ["canonical_url", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "canonical_url": { "type": "string", "format": "uri" },
+        "publisher": { "type": "string" },
+        "channel": { "type": "string" },
+        "author": { "type": "string" },
+        "title": { "type": "string" },
+        "publication_time": { "type": "string", "format": "date-time" },
+        "permitted_snippet": { "type": "string" },
+        "thumbnail_permission": { "type": "boolean" },
+        "embed_permission": { "type": "boolean" },
+        "topic_links": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "place_links": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "claim_summaries": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "sponsorship_label": { "type": "string" },
+        "rights_state": { "type": "string" }
+      }
+    },
+    "content_unknown": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

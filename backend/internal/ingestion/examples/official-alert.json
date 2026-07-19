@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "rec-flood-hanoi-001",
+  "record_type": "official_alert",
+  "pipeline_stage": "ai_extracted",
+  "source": {
+    "source_id": "gov-vn-monre",
+    "source_type": "official_api",
+    "canonical_url": "https://monre.gov.vn/alerts/flood-hanoi-2026",
+    "original_url": "https://monre.gov.vn/alerts/flood-hanoi-2026",
+    "publisher": "Ministry of Natural Resources and Environment Vietnam",
+    "author": "Department of Meteorology",
+    "published_at": "2026-07-19T06:00:00Z",
+    "source_updated_at": "2026-07-19T06:00:00Z",
+    "retrieved_at": "2026-07-19T06:15:00Z",
+    "locale": "vi-VN",
+    "country_scope": "VN",
+    "region_scope": "Hanoi"
+  },
+  "content": {
+    "alert_type": "flood",
+    "severity": "high_risk",
+    "affected_area": "Hanoi Red River banks and low-lying communes",
+    "effective_time": "2026-07-19T06:00:00Z",
+    "expiry": "2026-07-21T06:00:00Z",
+    "official_instructions": "Residents in low-lying areas of Hoan Kiem and Tay Ho districts should move valuables to higher floors and follow local evacuation orders.",
+    "issuing_authority": "MONRE",
+    "canonical_source": "https://monre.gov.vn/alerts/flood-hanoi-2026",
+    "revision_id": "v1"
+  },
+  "provenance": {
+    "claims": [
+      {
+        "claim_id": "claim-flood-type",
+        "field_path": "/content/alert_type",
+        "value": "flood",
+        "claim_type": "explicit",
+        "source_block_ids": ["block-1"],
+        "quoted_evidence": "ngập lụt diện rộng tại Hà Nội",
+        "confidence": 0.99,
+        "requires_review": false
+      }
+    ]
+  },
+  "extraction": {
+    "provider": "google",
+    "model": "gemini-1.5-pro",
+    "model_version": "v1",
+    "prompt_version": "v1.0",
+    "extracted_at": "2026-07-19T06:20:00Z"
+  },
+  "quality": {
+    "overall_confidence": 0.98,
+    "requires_human_review": false
+  },
+  "policy": {
+    "rights_status": "public_domain",
+    "robots_status": "allowed",
+    "allowed_uses": ["display", "aggregate"],
+    "retention_policy": {
+      "max_ttl_seconds": 172800,
+      "reason": "Expiring flood alert"
+    },
+    "publication_allowed": true
+  },
+  "lifecycle": {
+    "deletion_state": "active"
+  }
+}

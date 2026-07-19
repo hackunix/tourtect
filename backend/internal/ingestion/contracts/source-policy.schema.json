@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tourtect.example/schemas/source-policy.schema.json",
+  "title": "Source Access Policy",
+  "type": "object",
+  "required": [
+    "source_id",
+    "host",
+    "access_mode",
+    "policy_status",
+    "display_mode",
+    "may_store_raw_content",
+    "may_use_for_ai_extraction",
+    "requires_attribution",
+    "kill_switch"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "source_id": { "type": "string" },
+    "host": { "type": "string", "description": "Target hostname (e.g., example.gov.vn)" },
+    "access_mode": {
+      "type": "string",
+      "enum": [
+        "official_api", "partner_api", "rss", "atom", "websub", "sitemap", 
+        "allowlisted_html", "user_submitted_url", "official_embed", 
+        "licensed_feed", "manual_import", "blocked"
+      ]
+    },
+    "policy_status": { "type": "string", "enum": ["approved", "pending", "blocked"] },
+    "allowed_paths": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "blocked_paths": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "allowed_content_types": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "allowed_fields": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "display_mode": {
+      "type": "string",
+      "enum": ["link_and_excerpt", "link_only", "official_embed", "full_license", "hidden"]
+    },
+    "may_store_raw_content": { "type": "boolean" },
+    "raw_content_ttl_seconds": { "type": "integer", "minimum": -1 },
+    "may_store_images": { "type": "boolean" },
+    "may_embed_media": { "type": "boolean" },
+    "may_use_for_ai_extraction": { "type": "boolean" },
+    "may_use_for_model_training": { "type": "boolean" },
+    "requires_attribution": { "type": "boolean" },
+    "requires_human_review": { "type": "boolean" },
+    "rate_limit": {
+      "type": "object",
+      "required": ["requests_per_second", "concurrency_limit"],
+      "additionalProperties": false,
+      "properties": {
+        "requests_per_second": { "type": "number", "minimum": 0.0 },
+        "concurrency_limit": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "robots": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "type": "string", "enum": ["allowed", "disallowed", "ignored", "no_directives"] },
+        "last_checked_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "terms": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "terms_url": { "type": "string", "format": "uri" },
+        "agreed_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "owner": {
+      "type": "object",
+      "required": ["email"],
+      "additionalProperties": false,
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "department": { "type": "string" }
+      }
+    },
+    "kill_switch": { "type": "boolean" }
+  }
+}

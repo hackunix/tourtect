@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "rec-conflict-road-001",
+  "record_type": "place_status",
+  "pipeline_stage": "ai_extracted",
+  "source": {
+    "source_id": "aggregated-traffic-news",
+    "source_type": "rss",
+    "canonical_url": "https://trafficnews.example/updates/halong-pass-status",
+    "publisher": "Traffic Updates Portal",
+    "published_at": "2026-07-19T06:00:00Z",
+    "retrieved_at": "2026-07-19T06:15:00Z",
+    "locale": "vi-VN",
+    "country_scope": "VN",
+    "region_scope": "Quang Ninh"
+  },
+  "content": {
+    "status": "restricted",
+    "effective_time": "2026-07-19T06:00:00Z",
+    "expiry": "2026-07-20T06:00:00Z",
+    "reason": "Conflicting source statements. Local police states the pass is open with one-lane traffic, while local news site claims complete closure due to landslide.",
+    "evidence": "Source A (Police): 'Pass open for passenger cars on one lane'. Source B (VNS Daily): 'Pass closed to all traffic due to debris cleanup'."
+  },
+  "provenance": {
+    "claims": [
+      {
+        "claim_id": "claim-status-open",
+        "field_path": "/content/status",
+        "value": "open",
+        "claim_type": "contradicted",
+        "source_block_ids": ["block-1", "block-2"],
+        "quoted_evidence": "Source A: open, Source B: closed",
+        "confidence": 0.50,
+        "requires_review": true
+      }
+    ]
+  },
+  "extraction": {
+    "provider": "google",
+    "model": "gemini-1.5-pro",
+    "model_version": "v1",
+    "prompt_version": "v1.0",
+    "extracted_at": "2026-07-19T06:20:00Z"
+  },
+  "quality": {
+    "overall_confidence": 0.50,
+    "requires_human_review": true,
+    "review_reasons": [
+      "Conflicting statements in the source regarding road status.",
+      "The status claim type is 'contradicted'."
+    ]
+  },
+  "policy": {
+    "rights_status": "fair_use_excerpt",
+    "robots_status": "allowed",
+    "allowed_uses": ["display", "aggregate"],
+    "retention_policy": {
+      "max_ttl_seconds": 86400,
+      "reason": "Short TTL for active road incident status"
+    },
+    "publication_allowed": false
+  },
+  "lifecycle": {
+    "deletion_state": "active"
+  }
+}

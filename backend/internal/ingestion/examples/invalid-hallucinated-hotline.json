@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "rec-hallucinated-hotline-001",
+  "record_type": "emergency_directory_entry",
+  "pipeline_stage": "ai_extracted",
+  "source": {
+    "source_id": "unverified-travel-forum",
+    "source_type": "user_submitted_url",
+    "canonical_url": "https://travelerchat.example/posts/hanoi-tourist-police-number",
+    "publisher": "TravelerChat Forum",
+    "published_at": "2026-07-10T11:00:00Z",
+    "retrieved_at": "2026-07-19T06:15:00Z",
+    "locale": "en",
+    "country_scope": "VN",
+    "region_scope": "Hanoi"
+  },
+  "content": {
+    "country": "VN",
+    "region": "Hanoi",
+    "service_type": "tourist_police",
+    "number": "024-9999-8888",
+    "display_label": "Hanoi Tourist Emergency Hotline",
+    "availability": "24/7",
+    "languages": ["en", "vi"],
+    "verification_source": "user_comment_thread",
+    "verified_time": "2026-07-10T11:00:00Z",
+    "version": "1.0"
+  },
+  "provenance": {
+    "claims": [
+      {
+        "claim_id": "claim-hotline",
+        "field_path": "/content/number",
+        "value": "024-9999-8888",
+        "claim_type": "inferred",
+        "source_block_ids": ["block-3"],
+        "quoted_evidence": "someone said call 9999-8888",
+        "confidence": 0.40,
+        "requires_review": true
+      }
+    ]
+  },
+  "extraction": {
+    "provider": "google",
+    "model": "gemini-1.5-flash",
+    "model_version": "v1",
+    "prompt_version": "v1.0",
+    "extracted_at": "2026-07-19T06:20:00Z"
+  },
+  "quality": {
+    "overall_confidence": 0.45,
+    "requires_human_review": true,
+    "review_reasons": [
+      "Low confidence model extraction for safety-critical phone number.",
+      "The claim type is 'inferred' instead of 'explicit' in the source text."
+    ]
+  },
+  "policy": {
+    "rights_status": "unknown",
+    "robots_status": "allowed",
+    "allowed_uses": ["internal_analysis"],
+    "retention_policy": {
+      "max_ttl_seconds": 86400,
+      "reason": "Quarantined record TTL"
+    },
+    "publication_allowed": false
+  },
+  "lifecycle": {
+    "deletion_state": "active"
+  }
+}
